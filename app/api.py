@@ -1,0 +1,246 @@
+import logging
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse, PlainTextResponse
+from sqlmodel import Session, select
+
+from app.config import settings
+from app.db import get_session
+from app.models import Battle, BattleStatus, Segment
+from app.schemas import BattleOut, IngestRequest, SegmentOut, TranscriptOut
+from app.services import youtube
+from app.services.ingest import get_segments, ingest_battle
+from app.subtitles import to_srt, to_vtt
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+
+FORMAT_PATTERN = "^(json|srt|vtt|text)$"
+
+
+def resolve_video_id(url_or_id: str) -> str:
+    try:
+        return youtube.extract_video_id(url_or_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+def render_transcript(battle: Battle, segments: list[Segment], fmt: str):
+    if fmt == "srt":
+        return PlainTextResponse(to_srt(segments), media_type="text/plain")
+    if fmt == "vtt":
+        return PlainTextResponse(to_vtt(segments), media_type="text/vtt")
+    if fmt == "text":
+        return PlainTextResponse(
+            "\n".join(segment.text for segment in segments), media_type="text/plain"
+        )
+
+    return TranscriptOut(
+        **battle.model_dump(),
+        segments=[SegmentOut(**segment.model_dump()) for segment in segments],
+    )
+
+
+def stored_transcript(session: Session, video_id: str, fmt: str):
+    battle = session.get(Battle, video_id)
+    if battle is None:
+        raise HTTPException(status_code=404, detail="Battle not ingested")
+
+    segments = get_segments(session, video_id)
+    if not segments:
+        raise HTTPException(
+            status_code=409,
+            detail=f"No segments stored (status={battle.status}, error={battle.error})",
+        )
+
+    return render_transcript(battle, segments, fmt)
+
+
+def accepted(video_id: str, status: str, detail: str) -> JSONResponse:
+    """202 for work that is too slow to finish inside the request."""
+    return JSONResponse(
+        status_code=202,
+        content={
+            "video_id": video_id,
+            "status": status,
+            "detail": detail,
+            "status_url": f"/battles/{video_id}",
+            "transcript_url": f"/battles/{video_id}/transcript",
+        },
+    )
+
+
+@router.get("/health")
+def health() -> dict:
+    return {"status": "ok"}
+
+
+@router.get("/battles", response_model=list[BattleOut])
+def list_battles(session: Session = Depends(get_session)) -> list[Battle]:
+    return list(session.exec(select(Battle).order_by(Battle.created_at.desc())))
+
+
+@router.get("/youtube/{video_id}/captions")
+def probe_captions(video_id: str) -> dict:
+    """Inspect which caption tracks YouTube exposes, without ingesting."""
+    resolved = resolve_video_id(video_id)
+    try:
+        info = youtube.fetch_info(resolved)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=502, detail=f"yt-dlp failed: {exc}") from exc
+
+    tracks = youtube.list_caption_tracks(info)
+    chosen = youtube.pick_caption_track(info)
+
+    return {
+        "video_id": info.get("id"),
+        "title": info.get("title"),
+        "duration": info.get("duration"),
+        "available": tracks,
+        "would_use": None
+        if chosen is None
+        else {"lang": chosen.lang, "ext": chosen.ext, "source": chosen.source},
+    }
+
+
+@router.post("/battles/ingest", response_model=BattleOut)
+def ingest(
+    body: IngestRequest,
+    background_tasks: BackgroundTasks,
+    wait: bool = Query(True, description="Run inline; set false to queue in background"),
+    session: Session = Depends(get_session),
+) -> Battle:
+    video_id = resolve_video_id(body.url)
+
+    if wait:
+        battle = ingest_battle(
+            body.url, force=body.force, allow_whisper=body.allow_whisper
+        )
+        if battle.status == BattleStatus.FAILED:
+            raise HTTPException(status_code=502, detail=battle.error or "Ingest failed")
+        return battle
+
+    background_tasks.add_task(
+        ingest_battle, body.url, force=body.force, allow_whisper=body.allow_whisper
+    )
+
+    existing = session.get(Battle, video_id)
+    if existing:
+        return existing
+
+    queued = Battle(
+        video_id=video_id,
+        url=youtube.watch_url(video_id),
+        status=BattleStatus.PENDING,
+    )
+    session.add(queued)
+    session.commit()
+    session.refresh(queued)
+    return queued
+
+
+@router.get("/transcript")
+def transcript_by_url(
+    url: str = Query(..., description="YouTube URL or video id"),
+    format: str = Query("json", pattern=FORMAT_PATTERN),
+    session: Session = Depends(get_session),
+):
+    """Look up a stored transcript by link. Never ingests."""
+    return stored_transcript(session, resolve_video_id(url), format)
+
+
+@router.post("/transcript")
+def transcript_for_url(
+    body: IngestRequest,
+    background_tasks: BackgroundTasks,
+    format: str = Query("json", pattern=FORMAT_PATTERN),
+    session: Session = Depends(get_session),
+):
+    """Return a transcript for a link, ingesting first when that is cheap.
+
+    Captions resolve in seconds, so those are served inline. Anything needing
+    Whisper is queued and answered with 202 plus a URL to poll.
+    """
+    video_id = resolve_video_id(body.url)
+    battle = session.get(Battle, video_id)
+
+    if battle and not body.force:
+        if battle.status == BattleStatus.READY:
+            segments = get_segments(session, video_id)
+            if segments:
+                return render_transcript(battle, segments, format)
+        elif battle.status in (BattleStatus.PENDING, BattleStatus.PROCESSING):
+            return accepted(video_id, battle.status, "Ingest already in progress.")
+
+    try:
+        info = youtube.fetch_info(video_id)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=502, detail=f"yt-dlp failed: {exc}") from exc
+
+    if youtube.pick_caption_track(info) is not None:
+        result = ingest_battle(
+            body.url, force=body.force, allow_whisper=body.allow_whisper, info=info
+        )
+        if result.status == BattleStatus.FAILED:
+            raise HTTPException(status_code=502, detail=result.error or "Ingest failed")
+
+        # ingest_battle committed from its own session; drop anything cached here.
+        session.expire_all()
+        return stored_transcript(session, video_id, format)
+
+    if not body.allow_whisper or settings.transcription_backend.lower() == "none":
+        raise HTTPException(
+            status_code=409,
+            detail="No usable YouTube captions and Whisper transcription is disabled.",
+        )
+
+    if battle is None:
+        battle = Battle(
+            video_id=video_id,
+            url=youtube.watch_url(video_id),
+            title=info.get("title") or "",
+            channel=info.get("uploader") or info.get("channel"),
+            duration=info.get("duration"),
+            status=BattleStatus.PENDING,
+        )
+        session.add(battle)
+        session.commit()
+
+    background_tasks.add_task(
+        ingest_battle, body.url, force=body.force, allow_whisper=True
+    )
+    return accepted(
+        video_id,
+        BattleStatus.PENDING,
+        "No YouTube captions; transcribing audio with Whisper. Poll status_url.",
+    )
+
+
+@router.get("/battles/{video_id}", response_model=BattleOut)
+def get_battle(video_id: str, session: Session = Depends(get_session)) -> Battle:
+    battle = session.get(Battle, video_id)
+    if battle is None:
+        raise HTTPException(status_code=404, detail="Battle not ingested")
+    return battle
+
+
+@router.get("/battles/{video_id}/transcript")
+def get_transcript(
+    video_id: str,
+    format: str = Query("json", pattern=FORMAT_PATTERN),
+    session: Session = Depends(get_session),
+):
+    return stored_transcript(session, video_id, format)
+
+
+@router.delete("/battles/{video_id}")
+def delete_battle(video_id: str, session: Session = Depends(get_session)) -> dict:
+    battle = session.get(Battle, video_id)
+    if battle is None:
+        raise HTTPException(status_code=404, detail="Battle not ingested")
+
+    for segment in get_segments(session, video_id):
+        session.delete(segment)
+    session.delete(battle)
+    session.commit()
+    return {"deleted": video_id}
