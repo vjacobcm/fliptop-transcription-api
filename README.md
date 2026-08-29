@@ -69,22 +69,3 @@ into the one before it so Whisper is never fed mostly-silence.
 
 Each battle gets a prompt seeded with the emcee names parsed from its title, so
 proper nouns come back spelled correctly.
-
-## Search
-
-Every stored segment is indexed with SQLite FTS5. This is deliberately not an
-HTTP endpoint — the companion works within one battle at a time. It exists for
-offline use and as the groundwork for resolving references a battle makes to
-lines from earlier battles.
-
-```bash
-python scripts/search.py "lahat ng" --limit 5
-```
-
-Queries accept bare terms (all must match), `"exact phrases"`, and `prefix*`.
-Each hit reports the battle and a link to the exact second. The index is
-maintained by database triggers, so ingest and delete keep it current
-automatically; `app.services.search.reindex()` rebuilds it if it drifts.
-
-`GET /battles` is paginated too — `limit`, `offset`, and `status`, `source`,
-`channel` filters, with the unpaginated total in the `X-Total-Count` header.

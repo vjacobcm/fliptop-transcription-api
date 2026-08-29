@@ -33,3 +33,34 @@ class BattleOut(BaseModel):
 
 class TranscriptOut(BattleOut):
     segments: list[SegmentOut]
+
+
+class EntryOut(BaseModel):
+    id: int
+    slug: str
+    name: str
+    kind: str
+
+
+class MentionOut(BaseModel):
+    id: int
+    segment_idx: int
+    start: float
+    end: float
+    char_start: int
+    char_end: int
+    alias: str
+    status: str
+    detector: str
+    entry: EntryOut
+
+
+class MentionsOut(BaseModel):
+    video_id: str
+    at: float | None = None
+    count: int
+    mentions: list[MentionOut]
+
+
+class MentionStatusIn(BaseModel):
+    status: str

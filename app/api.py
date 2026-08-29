@@ -7,9 +7,19 @@ from sqlmodel import Session, select
 
 from app.config import settings
 from app.db import get_session
-from app.models import Battle, BattleStatus, Segment
-from app.schemas import BattleOut, IngestRequest, SegmentOut, TranscriptOut
+from app.models import Battle, BattleStatus, Entry, Mention, MentionStatus, Segment
+from app.schemas import (
+    BattleOut,
+    EntryOut,
+    IngestRequest,
+    MentionOut,
+    MentionStatusIn,
+    MentionsOut,
+    SegmentOut,
+    TranscriptOut,
+)
 from app.services import youtube
+from app.services.glossary import mentions_for
 from app.services.ingest import get_segments, ingest_battle
 from app.subtitles import to_srt, to_vtt
 
@@ -246,6 +256,11 @@ def transcript_for_url(
     )
 
 
+@router.get("/glossary", response_model=list[EntryOut])
+def list_glossary(session: Session = Depends(get_session)) -> list[Entry]:
+    return list(session.exec(select(Entry).order_by(Entry.kind, Entry.name)))
+
+
 @router.get("/battles/{video_id}", response_model=BattleOut)
 def get_battle(video_id: str, session: Session = Depends(get_session)) -> Battle:
     battle = session.get(Battle, video_id)
@@ -263,12 +278,81 @@ def get_transcript(
     return stored_transcript(session, video_id, format)
 
 
+def _mention_out(mention: Mention, entry) -> MentionOut:
+    return MentionOut(
+        id=mention.id,
+        segment_idx=mention.segment_idx,
+        start=mention.start,
+        end=mention.end,
+        char_start=mention.char_start,
+        char_end=mention.char_end,
+        alias=mention.alias,
+        status=mention.status,
+        detector=mention.detector,
+        entry=EntryOut(
+            id=entry.id, slug=entry.slug, name=entry.name, kind=entry.kind
+        ),
+    )
+
+
+@router.get("/battles/{video_id}/mentions", response_model=MentionsOut)
+def get_mentions(
+    video_id: str,
+    at: float | None = Query(
+        None, description="Playback time in seconds; only mentions covering that instant"
+    ),
+    include_rejected: bool = Query(False),
+    session: Session = Depends(get_session),
+) -> MentionsOut:
+    battle = session.get(Battle, video_id)
+    if battle is None:
+        raise HTTPException(status_code=404, detail="Battle not ingested")
+
+    rows = mentions_for(
+        session, video_id, at=at, include_rejected=include_rejected
+    )
+    packed = [_mention_out(mention, entry) for mention, entry in rows]
+    return MentionsOut(
+        video_id=video_id, at=at, count=len(packed), mentions=packed
+    )
+
+
+@router.patch("/mentions/{mention_id}", response_model=MentionOut)
+def set_mention_status(
+    mention_id: int,
+    body: MentionStatusIn,
+    session: Session = Depends(get_session),
+) -> MentionOut:
+    if body.status not in (
+        MentionStatus.DETECTED,
+        MentionStatus.CONFIRMED,
+        MentionStatus.REJECTED,
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="status must be detected, confirmed, or rejected",
+        )
+
+    mention = session.get(Mention, mention_id)
+    if mention is None:
+        raise HTTPException(status_code=404, detail="Mention not found")
+
+    entry = session.get(Entry, mention.entry_id)
+    mention.status = body.status
+    session.add(mention)
+    session.commit()
+    session.refresh(mention)
+    return _mention_out(mention, entry)
+
+
 @router.delete("/battles/{video_id}")
 def delete_battle(video_id: str, session: Session = Depends(get_session)) -> dict:
     battle = session.get(Battle, video_id)
     if battle is None:
         raise HTTPException(status_code=404, detail="Battle not ingested")
 
+    for mention in session.exec(select(Mention).where(Mention.video_id == video_id)):
+        session.delete(mention)
     for segment in get_segments(session, video_id):
         session.delete(segment)
     session.delete(battle)

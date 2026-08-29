@@ -48,3 +48,61 @@ class Segment(SQLModel, table=True):
     # Whisper drops speech under music, so a battle can mix sources: most
     # segments from Whisper, the gaps back-filled from YouTube captions.
     source: str | None = None
+
+
+class EntryKind:
+    PERSON = "person"
+    EVENT = "event"
+    PLACE = "place"
+    WORK = "work"
+    CONCEPT = "concept"
+
+
+class MentionStatus:
+    DETECTED = "detected"
+    CONFIRMED = "confirmed"
+    REJECTED = "rejected"
+
+
+class MentionDetector:
+    GLOSSARY = "glossary"
+    HUMAN = "human"
+
+
+class Entry(SQLModel, table=True):
+    """A named thing the companion can mark in a transcript."""
+
+    __tablename__ = "glossary_entry"
+
+    id: int | None = Field(default=None, primary_key=True)
+    slug: str = Field(index=True, unique=True)
+    name: str
+    kind: str = Field(index=True)
+    blurb: str = ""
+
+
+class Alias(SQLModel, table=True):
+    __tablename__ = "glossary_alias"
+
+    id: int | None = Field(default=None, primary_key=True)
+    entry_id: int = Field(index=True, foreign_key="glossary_entry.id")
+    # Lowercased unique key so "GL" and "gl" cannot point at two people.
+    norm: str = Field(index=True, unique=True)
+    label: str
+
+
+class Mention(SQLModel, table=True):
+    """One glossary hit inside a stored segment."""
+
+    id: int | None = Field(default=None, primary_key=True)
+    video_id: str = Field(index=True, foreign_key="battle.video_id")
+    segment_idx: int
+    start: float
+    end: float
+    entry_id: int = Field(index=True, foreign_key="glossary_entry.id")
+    alias: str
+    char_start: int
+    char_end: int
+    detector: str = MentionDetector.GLOSSARY
+    status: str = Field(default=MentionStatus.DETECTED, index=True)
+    line_gloss: str | None = None

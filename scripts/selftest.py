@@ -289,6 +289,80 @@ def main() -> int:
     )
     ok &= check("no 4s+ holes remain in the patched span", not find_gaps(merged, 50))
 
+    print("\nGlossary matching")
+    from app.services.glossary import find_spans, annotate_battle, seed_glossary
+    from app.models import Entry, Mention, MentionStatus
+    from sqlmodel import select as sql_select
+
+    hits = find_spans(
+        "Isabuhay champion si GL laban kay Hazky sa Apolo.",
+        [("Isabuhay", 1), ("GL", 2), ("Hazky", 3), ("Apolo", 4), ("Apolo Wilts", 4)],
+    )
+    aliases = [hit.alias for hit in hits]
+    ok &= check(
+        "longest alias wins and all hits bounded",
+        aliases == ["Isabuhay", "GL", "Hazky", "Apolo"],
+        str(aliases),
+    )
+
+    inside = find_spans("ANGLE and Twice", [("GL", 2), ("Ice", 5)])
+    ok &= check("short aliases do not match inside tokens", inside == [], str(inside))
+
+    with Session(engine) as session:
+        seed_glossary(session)
+        battle = session.get(Battle, VIDEO_ID) or Battle(
+            video_id=VIDEO_ID, url=f"https://www.youtube.com/watch?v={VIDEO_ID}"
+        )
+        battle.title = "FlipTop - GL vs Hazky @ Isabuhay 2024"
+        battle.status = BattleStatus.READY
+        session.add(battle)
+        session.commit()
+        _replace_segments(
+            session,
+            VIDEO_ID,
+            [
+                {"start": 10, "end": 12, "text": "GL versus Hazky, Isabuhay champion."},
+                {"start": 20, "end": 22, "text": "Shoutout kay Abra sa Apolo."},
+            ],
+        )
+        written = annotate_battle(session, VIDEO_ID)
+        rows = list(session.exec(sql_select(Mention).where(Mention.video_id == VIDEO_ID)))
+        names = sorted(
+            session.get(Entry, row.entry_id).name for row in rows
+        )
+
+    ok &= check(
+        "battling emcees are not marked",
+        "GL" not in names and "Hazky" not in names,
+        str(names),
+    )
+    ok &= check(
+        "other glossary hits are marked",
+        "Isabuhay" in names and "Abra" in names and "Apolo" in names,
+        str(names),
+    )
+    ok &= check("annotate wrote those mentions", written == len(rows), f"{written}/{len(rows)}")
+
+    client = TestClient(app)
+    marked = client.get(f"/battles/{VIDEO_ID}/mentions")
+    ok &= check("GET mentions", marked.status_code == 200 and marked.json()["count"] >= 3)
+    at_hit = client.get(f"/battles/{VIDEO_ID}/mentions", params={"at": 21})
+    ok &= check(
+        "mentions filtered by playback time",
+        at_hit.status_code == 200
+        and all(item["start"] <= 21 <= item["end"] for item in at_hit.json()["mentions"]),
+    )
+    if rows:
+        patched = client.patch(
+            f"/mentions/{rows[0].id}", json={"status": MentionStatus.CONFIRMED}
+        )
+        ok &= check(
+            "PATCH mention status",
+            patched.status_code == 200 and patched.json()["status"] == "confirmed",
+        )
+
+    client.delete(f"/battles/{VIDEO_ID}")
+
     print("\n" + ("All checks passed.\n" if ok else "Some checks FAILED.\n"))
     return 0 if ok else 1
 

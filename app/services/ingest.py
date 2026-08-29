@@ -6,9 +6,10 @@ from sqlmodel import Session, delete, select
 
 from app.config import settings
 from app.db import engine
-from app.models import Battle, BattleStatus, Segment, TranscriptSource, utcnow
+from app.models import Battle, BattleStatus, Mention, Segment, TranscriptSource, utcnow
 from app.services import captions as caption_parser
 from app.services import youtube
+from app.services.glossary import annotate_battle
 from app.services.merge import drop_hollow, fill_gaps
 from app.services.titles import whisper_prompt
 from app.services.transcribe import clean_segments, transcribe
@@ -41,6 +42,7 @@ def _upsert_battle(session: Session, video_id: str, info: dict) -> Battle:
 def _replace_segments(
     session: Session, video_id: str, segments: list[dict], source: str | None = None
 ) -> None:
+    session.exec(delete(Mention).where(Mention.video_id == video_id))
     session.exec(delete(Segment).where(Segment.video_id == video_id))
     for index, segment in enumerate(segments):
         session.add(
@@ -163,6 +165,7 @@ def ingest_battle(
                 raise IngestError("Transcription produced no segments.")
 
             _replace_segments(session, video_id, segments, source)
+            annotate_battle(session, video_id)
 
             battle.status = BattleStatus.READY
             battle.source = source
@@ -216,6 +219,7 @@ def patch_stored_gaps(video_id: str) -> Battle:
             segments, info, battle.source or TranscriptSource.WHISPER_GROQ, battle.duration
         )
         _replace_segments(session, video_id, patched, battle.source)
+        annotate_battle(session, video_id)
         battle.segment_count = len(patched)
         battle.updated_at = utcnow()
         session.add(battle)

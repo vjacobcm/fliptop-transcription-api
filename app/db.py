@@ -42,8 +42,11 @@ def init_db() -> None:
     SQLModel.metadata.create_all(engine)
     _add_missing_columns()
 
-    # Imported here because the search module needs the engine defined above.
+    from app.services.glossary import seed_glossary
     from app.services.search import init_search
+
+    with Session(engine) as session:
+        seed_glossary(session)
 
     init_search()
 
