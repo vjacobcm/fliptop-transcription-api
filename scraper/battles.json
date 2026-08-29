@@ -1,0 +1,1137 @@
+{
+  "channel": "https://www.youtube.com/@FlipTopBattles/videos",
+  "scraped_at": "2026-08-29T11:51:01Z",
+  "videos_scanned": 1889,
+  "shorts_skipped": 148,
+  "battle_count": 92,
+  "counts": {
+    "GL": 22,
+    "BLKD": 26,
+    "Loonie": 16,
+    "Tipsy D": 32
+  },
+  "battles": [
+    {
+      "url": "https://www.youtube.com/watch?v=NAf9uKFltjE",
+      "video_id": "NAf9uKFltjE",
+      "title": "FlipTop - GL vs 3rdy vs Bagsik vs Keelan vs Atoms",
+      "duration": 3788,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs 3rdy vs Bagsik vs Keelan vs Atoms",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=PcrQ8ajVNPw",
+      "video_id": "PcrQ8ajVNPw",
+      "title": "FlipTop - Poison13 vs GL",
+      "duration": 2282,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "Poison13 vs GL",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=1GtRT0z4iyg",
+      "video_id": "1GtRT0z4iyg",
+      "title": "FlipTop - Tipsy D vs Mhot",
+      "duration": 3229,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Mhot",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=QfNRBbL65Uk",
+      "video_id": "QfNRBbL65Uk",
+      "title": "FlipTop - GL vs Ruffian",
+      "duration": 2478,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs Ruffian",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=YHUaTOiGXBI",
+      "video_id": "YHUaTOiGXBI",
+      "title": "FlipTop - GL vs Hazky",
+      "duration": 2404,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs Hazky",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=1bBLeIRdlO4",
+      "video_id": "1bBLeIRdlO4",
+      "title": "FlipTop - GL vs Emar Industriya",
+      "duration": 2679,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs Emar Industriya",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Xfsbnz_WTLs",
+      "video_id": "Xfsbnz_WTLs",
+      "title": "FlipTop - Sinagtala vs 1ce Water",
+      "duration": 1092,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "Sinagtala vs 1ce Water",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=spHgPSIKhyo",
+      "video_id": "spHgPSIKhyo",
+      "title": "FlipTop - Tipsy D vs M Zhayt",
+      "duration": 2938,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs M Zhayt",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=B550Fva6pUw",
+      "video_id": "B550Fva6pUw",
+      "title": "FlipTop - Tipsy D vs Frooz",
+      "duration": 2075,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Frooz",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=1YLbAs1Kgsk",
+      "video_id": "1YLbAs1Kgsk",
+      "title": "FlipTop - GL vs Vitrum @ Isabuhay 2024 Finals",
+      "duration": 3047,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs Vitrum",
+      "event": "Isabuhay 2024 Finals"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=HDa4I1ZDBkY",
+      "video_id": "HDa4I1ZDBkY",
+      "title": "FlipTop - EJ Power vs GL @ Isabuhay 2024 Semifinals",
+      "duration": 2688,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "EJ Power vs GL",
+      "event": "Isabuhay 2024 Semifinals"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Qc0Ph1IVEC0",
+      "video_id": "Qc0Ph1IVEC0",
+      "title": "FlipTop - Freak Sanchez vs Ghostly",
+      "duration": 779,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Freak Sanchez vs Ghostly",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=C9Kw0vX9TNE",
+      "video_id": "C9Kw0vX9TNE",
+      "title": "FlipTop - Sur Henyo vs GL @ Isabuhay 2024",
+      "duration": 2643,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "Sur Henyo vs GL",
+      "event": "Isabuhay 2024"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=_twV2LsxMYA",
+      "video_id": "_twV2LsxMYA",
+      "title": "FlipTop - Tipsy D vs Batang Rebelde",
+      "duration": 2428,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Batang Rebelde",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=gM_Xp_H2PTE",
+      "video_id": "gM_Xp_H2PTE",
+      "title": "FlipTop - GL vs JDee @ Isabuhay 2024",
+      "duration": 2653,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs JDee",
+      "event": "Isabuhay 2024"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=3yLoj3zcFVU",
+      "video_id": "3yLoj3zcFVU",
+      "title": "FlipTop - GL vs Plaridhel",
+      "duration": 2027,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs Plaridhel",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=YJsxEwgp-fc",
+      "video_id": "YJsxEwgp-fc",
+      "title": "FlipTop - GL vs Lhipkram",
+      "duration": 2266,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs Lhipkram",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=3_zsDmT7iJ4",
+      "video_id": "3_zsDmT7iJ4",
+      "title": "FlipTop - GL vs Marshall Bonifacio",
+      "duration": 1940,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs Marshall Bonifacio",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=bGOxyj9Iwy8",
+      "video_id": "bGOxyj9Iwy8",
+      "title": "FlipTop - Sayadd vs GL",
+      "duration": 2040,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "Sayadd vs GL",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=K-bxj_O4y48",
+      "video_id": "K-bxj_O4y48",
+      "title": "FlipTop - GL vs LilStrocks",
+      "duration": 1925,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs LilStrocks",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=0tJXmIsKkBE",
+      "video_id": "0tJXmIsKkBE",
+      "title": "FlipTop - GL vs Yuniko",
+      "duration": 1779,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs Yuniko",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fZri3c9KBnU",
+      "video_id": "fZri3c9KBnU",
+      "title": "FlipTop - Tipsy D vs C-Quence",
+      "duration": 1708,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs C-Quence",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=1HbIj0o29hc",
+      "video_id": "1HbIj0o29hc",
+      "title": "FlipTop - M-Zhayt vs GL @ Isabuhay 2020",
+      "duration": 1930,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "M-Zhayt vs GL",
+      "event": "Isabuhay 2020"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GwImBuU5EDk",
+      "video_id": "GwImBuU5EDk",
+      "title": "FlipTop - GL vs Chris Ace @ Isabuhay 2020",
+      "duration": 1409,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs Chris Ace",
+      "event": "Isabuhay 2020"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=StPj0lYkZgY",
+      "video_id": "StPj0lYkZgY",
+      "title": "FlipTop - Tipsy D vs Poison13",
+      "duration": 1736,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Poison13",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=PDcdQ2Ct3XA",
+      "video_id": "PDcdQ2Ct3XA",
+      "title": "FlipTop - Sinio/Tipsy D vs Jonas/Lhipkram @ The FlipTop Festival",
+      "duration": 2574,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Sinio & Tipsy D vs Jonas & Lhipkram",
+      "event": "The FlipTop Festival"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=g7N-Cj7qbsU",
+      "video_id": "g7N-Cj7qbsU",
+      "title": "FlipTop - BLKD vs Fukuda",
+      "duration": 1484,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Fukuda",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=IPw-r5LW30U",
+      "video_id": "IPw-r5LW30U",
+      "title": "FlipTop - Zend Luke vs GL",
+      "duration": 1403,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "Zend Luke vs GL",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=K-WSwDDXVi0",
+      "video_id": "K-WSwDDXVi0",
+      "title": "FlipTop - Batas vs Tipsy D",
+      "duration": 1722,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Batas vs Tipsy D",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=1LzOO-vrl_8",
+      "video_id": "1LzOO-vrl_8",
+      "title": "FlipTop - BLKD vs Frooz",
+      "duration": 1398,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Frooz",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=hHaNPvxp1Ws",
+      "video_id": "hHaNPvxp1Ws",
+      "title": "FlipTop - Doc Pau vs GL",
+      "duration": 1519,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "Doc Pau vs GL",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=p_0oRsNeIys",
+      "video_id": "p_0oRsNeIys",
+      "title": "FlipTop - Tipsy D vs Zaito",
+      "duration": 1715,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Zaito",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=5uEyb6iA3Gw",
+      "video_id": "5uEyb6iA3Gw",
+      "title": "FlipTop - BLKD vs Poison13 @ Isabuhay 2019",
+      "duration": 1304,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Poison13",
+      "event": "Isabuhay 2019"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GHPeRWceuic",
+      "video_id": "GHPeRWceuic",
+      "title": "FlipTop - Pen Pluma vs GL",
+      "duration": 1653,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "Pen Pluma vs GL",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=pR4axEbcEbQ",
+      "video_id": "pR4axEbcEbQ",
+      "title": "FlipTop - BLKD vs Marshall Bonifacio @ Isabuhay 2019",
+      "duration": 1512,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Marshall Bonifacio",
+      "event": "Isabuhay 2019"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=W6WQ5FaLHUI",
+      "video_id": "W6WQ5FaLHUI",
+      "title": "FlipTop - BLKD vs LilJohn",
+      "duration": 1351,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs LilJohn",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=80b0N-IJJU8",
+      "video_id": "80b0N-IJJU8",
+      "title": "FlipTop - Tipsy D vs Sak Maestro",
+      "duration": 1956,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Sak Maestro",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=uIOWVMwgMds",
+      "video_id": "uIOWVMwgMds",
+      "title": "FlipTop - BLKD vs Damsa",
+      "duration": 1078,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Damsa",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=O6tnJAa-U58",
+      "video_id": "O6tnJAa-U58",
+      "title": "FlipTop - Tipsy D vs Apoc",
+      "duration": 1759,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Apoc",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=FJRZkuVi7DY",
+      "video_id": "FJRZkuVi7DY",
+      "title": "FlipTop - GL vs Tweng @ POI6 Visayas Division Finals",
+      "duration": 502,
+      "emcees": [
+        "GL"
+      ],
+      "matchup": "GL vs Tweng",
+      "event": "POI6 Visayas Division Finals"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=e9dbvtAJjlA",
+      "video_id": "e9dbvtAJjlA",
+      "title": "FlipTop - BLKD vs Lanzeta",
+      "duration": 1230,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Lanzeta",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=hr6CxxuHwcw",
+      "video_id": "hr6CxxuHwcw",
+      "title": "FlipTop - Loonie vs Mark Grist",
+      "duration": 1392,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie vs Mark Grist",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LNA4QzZzrEM",
+      "video_id": "LNA4QzZzrEM",
+      "title": "FlipTop - Batas vs BLKD vs Apoc vs Goriong Talas vs Tweng - Royal Rumble",
+      "duration": 1939,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "Batas vs BLKD vs Apoc vs Goriong Talas vs Tweng - Royal Rumble",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=YVckx89QcG8",
+      "video_id": "YVckx89QcG8",
+      "title": "FlipTop - Sinio/Tipsy D vs Shernan/M Zhayt @ DosPorDos Finals 2017",
+      "duration": 2789,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Sinio & Tipsy D vs Shernan & M Zhayt",
+      "event": "DosPorDos Finals 2017"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=px530gRjQcw",
+      "video_id": "px530gRjQcw",
+      "title": "FlipTop - Sinio/Tipsy D vs J-King/Romano @ DosPorDos 2017 Semifinals",
+      "duration": 2427,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Sinio & Tipsy D vs J-King & Romano",
+      "event": "DosPorDos 2017 Semifinals"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=C79_XopDOCA",
+      "video_id": "C79_XopDOCA",
+      "title": "FlipTop - Sinio/Tipsy D vs PriceTagg/Kris Delano @ DosPorDos 2017",
+      "duration": 2005,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Sinio & Tipsy D vs PriceTagg & Kris Delano",
+      "event": "DosPorDos 2017"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=b8mcEjax5fs",
+      "video_id": "b8mcEjax5fs",
+      "title": "FlipTop - BLKD vs Kregga",
+      "duration": 1338,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Kregga",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=iDXXqtXvkmc",
+      "video_id": "iDXXqtXvkmc",
+      "title": "FlipTop - Sinio/Tipsy D vs Aelekz/Fangs @ DosPorDos 2017",
+      "duration": 2804,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Sinio & Tipsy D vs Aelekz & Fangs",
+      "event": "DosPorDos 2017"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=kr5xh8aLjrA",
+      "video_id": "kr5xh8aLjrA",
+      "title": "FlipTop - Loonie vs Plazma @ Isabuhay 2016 Finals",
+      "duration": 1829,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie vs Plazma",
+      "event": "Isabuhay 2016 Finals"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=TdUeQZpzrmY",
+      "video_id": "TdUeQZpzrmY",
+      "title": "FlipTop - Loonie vs Tipsy D @ Isabuhay 2016 Semifinals",
+      "duration": 2159,
+      "emcees": [
+        "Loonie",
+        "Tipsy D"
+      ],
+      "matchup": "Loonie vs Tipsy D",
+      "event": "Isabuhay 2016 Semifinals"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=9yKx7_cVchE",
+      "video_id": "9yKx7_cVchE",
+      "title": "FlipTop - BLKD vs Zero Hour",
+      "duration": 1615,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Zero Hour",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=lBsg9m1GLIY",
+      "video_id": "lBsg9m1GLIY",
+      "title": "FlipTop - Loonie vs G-Clown @ Isabuhay 2016",
+      "duration": 1673,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie vs G-Clown",
+      "event": "Isabuhay 2016"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=TsfHbqZej68",
+      "video_id": "TsfHbqZej68",
+      "title": "FlipTop - Tipsy D vs J-King @ Isabuhay 2016",
+      "duration": 1558,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs J-King",
+      "event": "Isabuhay 2016"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=njsDvhOKw-Y",
+      "video_id": "njsDvhOKw-Y",
+      "title": "FlipTop - Loonie vs Badang @ Isabuhay 2016",
+      "duration": 1410,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie vs Badang",
+      "event": "Isabuhay 2016"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=NfmuIt_IvXk",
+      "video_id": "NfmuIt_IvXk",
+      "title": "FlipTop - Tipsy D vs Flict-G @ Isabuhay 2016",
+      "duration": 1702,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Flict-G",
+      "event": "Isabuhay 2016"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=iXukGfI2rR4",
+      "video_id": "iXukGfI2rR4",
+      "title": "FlipTop - BLKD vs Tipsy D",
+      "duration": 1739,
+      "emcees": [
+        "BLKD",
+        "Tipsy D"
+      ],
+      "matchup": "BLKD vs Tipsy D",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=APNkS_Yh6FA",
+      "video_id": "APNkS_Yh6FA",
+      "title": "FlipTop - Loonie vs Shehyee",
+      "duration": 1719,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie vs Shehyee",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=9HYCWMi3aFg",
+      "video_id": "9HYCWMi3aFg",
+      "title": "FlipTop - Tipsy D vs Sayadd",
+      "duration": 1482,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Sayadd",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=ksVYzeMPeCU",
+      "video_id": "ksVYzeMPeCU",
+      "title": "FlipTop - BLKD vs Shernan @ Isabuhay 2015",
+      "duration": 2534,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Shernan",
+      "event": "Isabuhay 2015"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=PwTaeH0V--4",
+      "video_id": "PwTaeH0V--4",
+      "title": "FlipTop - BLKD vs Thike @ Isabuhay 2015",
+      "duration": 1490,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Thike",
+      "event": "Isabuhay 2015"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=n0ltrzxrWPQ",
+      "video_id": "n0ltrzxrWPQ",
+      "title": "FlipTop - Tipsy D vs J Skeelz",
+      "duration": 1877,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs J Skeelz",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=x0fnpDyVm9s",
+      "video_id": "x0fnpDyVm9s",
+      "title": "FlipTop - Loonie vs Aklas",
+      "duration": 1419,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie vs Aklas",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=pVY-2Fqdum0",
+      "video_id": "pVY-2Fqdum0",
+      "title": "FlipTop - Tipsy D vs Sinio",
+      "duration": 1961,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Sinio",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qQPTSgWVb7M",
+      "video_id": "qQPTSgWVb7M",
+      "title": "FlipTop - Aklas vs BLKD @ Isabuhay Tournament Finals",
+      "duration": 2562,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "Aklas vs BLKD",
+      "event": "Isabuhay Tournament Finals"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=w-Num_ojNgg",
+      "video_id": "w-Num_ojNgg",
+      "title": "FlipTop - Tipsy D vs Juan Lazy",
+      "duration": 1788,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Juan Lazy",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=c-0BJdx3QMk",
+      "video_id": "c-0BJdx3QMk",
+      "title": "FlipTop - BLKD vs Flict-G @ Isabuhay Tournament",
+      "duration": 1889,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Flict-G",
+      "event": "Isabuhay Tournament"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=-ka96VmMuCU",
+      "video_id": "-ka96VmMuCU",
+      "title": "FlipTop - Crazymix/Basilyo vs Tipsy D/Third D @ Dos Por Dos 2",
+      "duration": 2807,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Crazymix & Basilyo vs Tipsy D & Third D",
+      "event": "Dos Por Dos 2"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=XnxqXonZiVM",
+      "video_id": "XnxqXonZiVM",
+      "title": "FlipTop - BLKD vs Spade - Isabuhay Tournament",
+      "duration": 1498,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Spade - Isabuhay Tournament",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=f_n6U6uUi98",
+      "video_id": "f_n6U6uUi98",
+      "title": "FlipTop - Tipsy D/Third D vs G-Spot/Mac T @ Dos Por Dos 2",
+      "duration": 2226,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D & Third D vs G-Spot & Mac T",
+      "event": "Dos Por Dos 2"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=UypvEz_A2uo",
+      "video_id": "UypvEz_A2uo",
+      "title": "FlipTop - BLKD vs Gin - Isabuhay Tournament",
+      "duration": 1135,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Gin - Isabuhay Tournament",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=bXRPR-5-CsU",
+      "video_id": "bXRPR-5-CsU",
+      "title": "FlipTop - Tipsy D/Third D vs Thike/G-Clown @ Dos Por Dos 2 Tournament",
+      "duration": 2065,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D & Third D vs Thike & G-Clown",
+      "event": "Dos Por Dos 2 Tournament"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=p66IveXrfh4",
+      "video_id": "p66IveXrfh4",
+      "title": "FlipTop - Tipsy D vs Icaruz",
+      "duration": 1677,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Icaruz",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xptQdqSrrvA",
+      "video_id": "xptQdqSrrvA",
+      "title": "FlipTop - Tipsy D vs Notorious",
+      "duration": 1279,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Notorious",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=u3RqpqLiLo8",
+      "video_id": "u3RqpqLiLo8",
+      "title": "FlipTop - BLKD vs Apekz",
+      "duration": 1333,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Apekz",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=gyIxD5K4lUo",
+      "video_id": "gyIxD5K4lUo",
+      "title": "FlipTop - Loonie/Abra vs Shehyee/Smugglaz @ Dos Por Dos Tournament",
+      "duration": 2593,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie & Abra vs Shehyee & Smugglaz",
+      "event": "Dos Por Dos Tournament"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=3yPiNH-_zrk",
+      "video_id": "3yPiNH-_zrk",
+      "title": "FlipTop - Crazymix/Bassilyo vs Loonie/Abra @ Dos Por Dos Tournament",
+      "duration": 2266,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Crazymix & Bassilyo vs Loonie & Abra",
+      "event": "Dos Por Dos Tournament"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=5-62W3XuQmg",
+      "video_id": "5-62W3XuQmg",
+      "title": "FlipTop - Loonie/Abra vs Tipsy D/Third D @ Dos Por Dos Tournament",
+      "duration": 2122,
+      "emcees": [
+        "Loonie",
+        "Tipsy D"
+      ],
+      "matchup": "Loonie & Abra vs Tipsy D & Third D",
+      "event": "Dos Por Dos Tournament"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=TfCX9xRMgXw",
+      "video_id": "TfCX9xRMgXw",
+      "title": "FlipTop - BLKD vs Krack",
+      "duration": 1041,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Krack",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=hs_b_vaXa10",
+      "video_id": "hs_b_vaXa10",
+      "title": "FlipTop - Dello vs Loonie",
+      "duration": 1248,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Dello vs Loonie",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=DZMCYBYnvqA",
+      "video_id": "DZMCYBYnvqA",
+      "title": "FlipTop - Loonie vs BLKD",
+      "duration": 1100,
+      "emcees": [
+        "BLKD",
+        "Loonie"
+      ],
+      "matchup": "Loonie vs BLKD",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=X8om3U5HecI",
+      "video_id": "X8om3U5HecI",
+      "title": "FlipTop - Dello vs BLKD",
+      "duration": 883,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "Dello vs BLKD",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=KaguQeHSnO0",
+      "video_id": "KaguQeHSnO0",
+      "title": "FlipTop - Gin vs Tipsy D",
+      "duration": 1022,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Gin vs Tipsy D",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LAahBvoVnVU",
+      "video_id": "LAahBvoVnVU",
+      "title": "FlipTop - Tipsy D vs Toma Hawk",
+      "duration": 702,
+      "emcees": [
+        "Tipsy D"
+      ],
+      "matchup": "Tipsy D vs Toma Hawk",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=7kD2fF2qz0k",
+      "video_id": "7kD2fF2qz0k",
+      "title": "FlipTop - BLKD/Kahir vs Harlem/Juan Lazy",
+      "duration": 2046,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD & Kahir vs Harlem & Juan Lazy",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=gWS3he5USoY",
+      "video_id": "gWS3he5USoY",
+      "title": "FlipTop - Shehyee vs BLKD",
+      "duration": 1074,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "Shehyee vs BLKD",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=QsQkNDepZBU",
+      "video_id": "QsQkNDepZBU",
+      "title": "FlipTop - BLKD vs Mel Christ",
+      "duration": 688,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Mel Christ",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=zX7cZsU9DAE",
+      "video_id": "zX7cZsU9DAE",
+      "title": "FlipTop - BLKD vs 2Khelle",
+      "duration": 934,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs 2Khelle",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=tAdGCvvcuSE",
+      "video_id": "tAdGCvvcuSE",
+      "title": "FlipTop - BLKD vs Sayadd",
+      "duration": 765,
+      "emcees": [
+        "BLKD"
+      ],
+      "matchup": "BLKD vs Sayadd",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=VTmNEB6AogU",
+      "video_id": "VTmNEB6AogU",
+      "title": "FlipTop - Loonie vs Zaito pt. 2",
+      "duration": 404,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie vs Zaito pt. 2",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=2Bp7TcNO-CY",
+      "video_id": "2Bp7TcNO-CY",
+      "title": "FlipTop - Loonie vs Zaito pt. 1",
+      "duration": 432,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie vs Zaito pt. 1",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=nnkf1YVfFq4",
+      "video_id": "nnkf1YVfFq4",
+      "title": "FlipTop - Loonie vs Gap pt. 2",
+      "duration": 234,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie vs Gap pt. 2",
+      "event": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=sm_XzM8EvyI",
+      "video_id": "sm_XzM8EvyI",
+      "title": "FlipTop - Loonie vs Gap pt. 1",
+      "duration": 401,
+      "emcees": [
+        "Loonie"
+      ],
+      "matchup": "Loonie vs Gap pt. 1",
+      "event": null
+    }
+  ],
+  "by_emcee": {
+    "GL": [
+      "https://www.youtube.com/watch?v=NAf9uKFltjE",
+      "https://www.youtube.com/watch?v=PcrQ8ajVNPw",
+      "https://www.youtube.com/watch?v=QfNRBbL65Uk",
+      "https://www.youtube.com/watch?v=YHUaTOiGXBI",
+      "https://www.youtube.com/watch?v=1bBLeIRdlO4",
+      "https://www.youtube.com/watch?v=Xfsbnz_WTLs",
+      "https://www.youtube.com/watch?v=1YLbAs1Kgsk",
+      "https://www.youtube.com/watch?v=HDa4I1ZDBkY",
+      "https://www.youtube.com/watch?v=C9Kw0vX9TNE",
+      "https://www.youtube.com/watch?v=gM_Xp_H2PTE",
+      "https://www.youtube.com/watch?v=3yLoj3zcFVU",
+      "https://www.youtube.com/watch?v=YJsxEwgp-fc",
+      "https://www.youtube.com/watch?v=3_zsDmT7iJ4",
+      "https://www.youtube.com/watch?v=bGOxyj9Iwy8",
+      "https://www.youtube.com/watch?v=K-bxj_O4y48",
+      "https://www.youtube.com/watch?v=0tJXmIsKkBE",
+      "https://www.youtube.com/watch?v=1HbIj0o29hc",
+      "https://www.youtube.com/watch?v=GwImBuU5EDk",
+      "https://www.youtube.com/watch?v=IPw-r5LW30U",
+      "https://www.youtube.com/watch?v=hHaNPvxp1Ws",
+      "https://www.youtube.com/watch?v=GHPeRWceuic",
+      "https://www.youtube.com/watch?v=FJRZkuVi7DY"
+    ],
+    "BLKD": [
+      "https://www.youtube.com/watch?v=g7N-Cj7qbsU",
+      "https://www.youtube.com/watch?v=1LzOO-vrl_8",
+      "https://www.youtube.com/watch?v=5uEyb6iA3Gw",
+      "https://www.youtube.com/watch?v=pR4axEbcEbQ",
+      "https://www.youtube.com/watch?v=W6WQ5FaLHUI",
+      "https://www.youtube.com/watch?v=uIOWVMwgMds",
+      "https://www.youtube.com/watch?v=e9dbvtAJjlA",
+      "https://www.youtube.com/watch?v=LNA4QzZzrEM",
+      "https://www.youtube.com/watch?v=b8mcEjax5fs",
+      "https://www.youtube.com/watch?v=9yKx7_cVchE",
+      "https://www.youtube.com/watch?v=iXukGfI2rR4",
+      "https://www.youtube.com/watch?v=ksVYzeMPeCU",
+      "https://www.youtube.com/watch?v=PwTaeH0V--4",
+      "https://www.youtube.com/watch?v=qQPTSgWVb7M",
+      "https://www.youtube.com/watch?v=c-0BJdx3QMk",
+      "https://www.youtube.com/watch?v=XnxqXonZiVM",
+      "https://www.youtube.com/watch?v=UypvEz_A2uo",
+      "https://www.youtube.com/watch?v=u3RqpqLiLo8",
+      "https://www.youtube.com/watch?v=TfCX9xRMgXw",
+      "https://www.youtube.com/watch?v=DZMCYBYnvqA",
+      "https://www.youtube.com/watch?v=X8om3U5HecI",
+      "https://www.youtube.com/watch?v=7kD2fF2qz0k",
+      "https://www.youtube.com/watch?v=gWS3he5USoY",
+      "https://www.youtube.com/watch?v=QsQkNDepZBU",
+      "https://www.youtube.com/watch?v=zX7cZsU9DAE",
+      "https://www.youtube.com/watch?v=tAdGCvvcuSE"
+    ],
+    "Loonie": [
+      "https://www.youtube.com/watch?v=hr6CxxuHwcw",
+      "https://www.youtube.com/watch?v=kr5xh8aLjrA",
+      "https://www.youtube.com/watch?v=TdUeQZpzrmY",
+      "https://www.youtube.com/watch?v=lBsg9m1GLIY",
+      "https://www.youtube.com/watch?v=njsDvhOKw-Y",
+      "https://www.youtube.com/watch?v=APNkS_Yh6FA",
+      "https://www.youtube.com/watch?v=x0fnpDyVm9s",
+      "https://www.youtube.com/watch?v=gyIxD5K4lUo",
+      "https://www.youtube.com/watch?v=3yPiNH-_zrk",
+      "https://www.youtube.com/watch?v=5-62W3XuQmg",
+      "https://www.youtube.com/watch?v=hs_b_vaXa10",
+      "https://www.youtube.com/watch?v=DZMCYBYnvqA",
+      "https://www.youtube.com/watch?v=VTmNEB6AogU",
+      "https://www.youtube.com/watch?v=2Bp7TcNO-CY",
+      "https://www.youtube.com/watch?v=nnkf1YVfFq4",
+      "https://www.youtube.com/watch?v=sm_XzM8EvyI"
+    ],
+    "Tipsy D": [
+      "https://www.youtube.com/watch?v=1GtRT0z4iyg",
+      "https://www.youtube.com/watch?v=spHgPSIKhyo",
+      "https://www.youtube.com/watch?v=B550Fva6pUw",
+      "https://www.youtube.com/watch?v=Qc0Ph1IVEC0",
+      "https://www.youtube.com/watch?v=_twV2LsxMYA",
+      "https://www.youtube.com/watch?v=fZri3c9KBnU",
+      "https://www.youtube.com/watch?v=StPj0lYkZgY",
+      "https://www.youtube.com/watch?v=PDcdQ2Ct3XA",
+      "https://www.youtube.com/watch?v=K-WSwDDXVi0",
+      "https://www.youtube.com/watch?v=p_0oRsNeIys",
+      "https://www.youtube.com/watch?v=80b0N-IJJU8",
+      "https://www.youtube.com/watch?v=O6tnJAa-U58",
+      "https://www.youtube.com/watch?v=YVckx89QcG8",
+      "https://www.youtube.com/watch?v=px530gRjQcw",
+      "https://www.youtube.com/watch?v=C79_XopDOCA",
+      "https://www.youtube.com/watch?v=iDXXqtXvkmc",
+      "https://www.youtube.com/watch?v=TdUeQZpzrmY",
+      "https://www.youtube.com/watch?v=TsfHbqZej68",
+      "https://www.youtube.com/watch?v=NfmuIt_IvXk",
+      "https://www.youtube.com/watch?v=iXukGfI2rR4",
+      "https://www.youtube.com/watch?v=9HYCWMi3aFg",
+      "https://www.youtube.com/watch?v=n0ltrzxrWPQ",
+      "https://www.youtube.com/watch?v=pVY-2Fqdum0",
+      "https://www.youtube.com/watch?v=w-Num_ojNgg",
+      "https://www.youtube.com/watch?v=-ka96VmMuCU",
+      "https://www.youtube.com/watch?v=f_n6U6uUi98",
+      "https://www.youtube.com/watch?v=bXRPR-5-CsU",
+      "https://www.youtube.com/watch?v=p66IveXrfh4",
+      "https://www.youtube.com/watch?v=xptQdqSrrvA",
+      "https://www.youtube.com/watch?v=5-62W3XuQmg",
+      "https://www.youtube.com/watch?v=KaguQeHSnO0",
+      "https://www.youtube.com/watch?v=LAahBvoVnVU"
+    ]
+  }
+}
