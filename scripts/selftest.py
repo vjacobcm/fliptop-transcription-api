@@ -20,8 +20,39 @@ from app.main import app  # noqa: E402
 from app.models import Battle, BattleStatus, TranscriptSource  # noqa: E402
 from app.services.captions import parse_caption_payload  # noqa: E402
 from app.services.ingest import _replace_segments  # noqa: E402
+from app.services.youtube import extract_video_id  # noqa: E402
 
 VIDEO_ID = "selftest123"
+
+# Real-looking 11-character id, used to exercise link parsing.
+SAMPLE_ID = "Xfsbnz_WTLs"
+
+ACCEPTED_LINKS = (
+    f"https://www.youtube.com/watch?v={SAMPLE_ID}",
+    f"http://youtube.com/watch?v={SAMPLE_ID}",
+    f"https://youtu.be/{SAMPLE_ID}",
+    f"https://youtu.be/{SAMPLE_ID}?si=abc123",
+    f"https://www.youtube.com/watch?v={SAMPLE_ID}&list=PLxxx&t=42",
+    f"https://www.youtube.com/shorts/{SAMPLE_ID}",
+    f"https://www.youtube.com/embed/{SAMPLE_ID}",
+    f"https://www.youtube.com/live/{SAMPLE_ID}",
+    f"https://m.youtube.com/watch?v={SAMPLE_ID}",
+    f"https://music.youtube.com/watch?v={SAMPLE_ID}",
+    f"youtu.be/{SAMPLE_ID}",
+    f"  {SAMPLE_ID}  ",
+)
+
+REJECTED_LINKS = (
+    "hello world",
+    "https://vimeo.com/12345",
+    "",
+    "   ",
+    "https://notyoutube.com.evil.test/watch?v=abc",
+    "https://www.youtube.com/",
+    "https://www.youtube.com/watch?v=short",
+    "https://www.youtube.com/@FlipTopBattles",
+    f"https://evil-youtu.be/{SAMPLE_ID}",
+)
 
 # Mimics YouTube auto-caption output: each event repeats the previous line
 # and appends a couple of words.
@@ -61,9 +92,35 @@ def check(label: str, condition: bool, detail: str = "") -> bool:
 
 
 def main() -> int:
+    print("\nURL parsing")
+    accepted = []
+    for link in ACCEPTED_LINKS:
+        try:
+            accepted.append(extract_video_id(link) == SAMPLE_ID)
+        except ValueError:
+            accepted.append(False)
+    ok = check(
+        "valid youtube links resolve to the video id",
+        all(accepted),
+        f"{sum(accepted)}/{len(ACCEPTED_LINKS)} accepted",
+    )
+
+    rejected = []
+    for link in REJECTED_LINKS:
+        try:
+            extract_video_id(link)
+            rejected.append(False)
+        except ValueError:
+            rejected.append(True)
+    ok &= check(
+        "junk and non-youtube links are rejected",
+        all(rejected),
+        f"{sum(rejected)}/{len(REJECTED_LINKS)} rejected",
+    )
+
     print("\nCaption parsing")
     rolling = parse_caption_payload(ROLLING_JSON3, "json3")
-    ok = check(
+    ok &= check(
         "rolling duplicates collapsed",
         len(rolling) == 2,
         f"{len(rolling)} segments (expected 2)",
@@ -150,8 +207,13 @@ def main() -> int:
         "400 for malformed youtube url", bad_url.status_code == 400, str(bad_url.status_code)
     )
 
-    missing = client.get("/transcript", params={"url": "https://youtu.be/nope"})
-    ok &= check("404 for link that is not ingested", missing.status_code == 404)
+    # Well formed, so it gets past validation and misses on lookup instead.
+    missing = client.get("/transcript", params={"url": "https://youtu.be/aaaaaaaaaaa"})
+    ok &= check(
+        "404 for valid link that is not ingested",
+        missing.status_code == 404,
+        str(missing.status_code),
+    )
 
     # Already READY, so this returns inline without reaching YouTube.
     cached = client.post("/transcript", json={"url": watch_url})

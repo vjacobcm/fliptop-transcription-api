@@ -1,5 +1,6 @@
 """yt-dlp wrappers: metadata, caption track discovery, audio download."""
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -13,6 +14,25 @@ from app.models import TranscriptSource
 # json3 carries per-event timings directly; the others need text parsing.
 FORMAT_PREFERENCE = ("json3", "vtt", "srv3", "srv1")
 
+# Not formally guaranteed by YouTube, but stable for years and what yt-dlp
+# itself matches on. Without it, any junk string passes as a video id.
+VIDEO_ID_RE = re.compile(r"^[A-Za-z0-9_-]{11}$")
+
+WATCH_HOSTS = frozenset(
+    {
+        "youtube.com",
+        "www.youtube.com",
+        "m.youtube.com",
+        "music.youtube.com",
+        "youtube-nocookie.com",
+        "www.youtube-nocookie.com",
+    }
+)
+SHORT_HOSTS = frozenset({"youtu.be", "www.youtu.be"})
+
+# /shorts/<id>, /embed/<id>, /live/<id>, /v/<id>
+PATH_PREFIXES = ("shorts", "embed", "live", "v")
+
 
 @dataclass
 class CaptionTrack:
@@ -22,17 +42,43 @@ class CaptionTrack:
     source: str  # TranscriptSource.YOUTUBE_MANUAL | YOUTUBE_AUTO
 
 
-def extract_video_id(url_or_id: str) -> str:
-    if "youtube.com" not in url_or_id and "youtu.be" not in url_or_id:
-        return url_or_id.strip()
+def _validated(candidate: str, original: str) -> str:
+    if not VIDEO_ID_RE.match(candidate):
+        raise ValueError(f"Could not extract a video id from: {original}")
+    return candidate
 
-    parsed = urlparse(url_or_id)
-    if parsed.hostname and parsed.hostname.endswith("youtu.be"):
-        return parsed.path.lstrip("/")
+
+def extract_video_id(url_or_id: str) -> str:
+    """Resolve a YouTube link or bare id to an 11-character video id.
+
+    Raises ValueError for anything that is not recognisably a YouTube video,
+    so bad input fails here rather than reaching yt-dlp or the database.
+    """
+    text = (url_or_id or "").strip()
+    if not text:
+        raise ValueError("No URL or video id given")
+
+    if "://" not in text and "/" not in text:
+        return _validated(text, url_or_id)
+
+    # Tolerate links pasted without a scheme, e.g. "youtu.be/<id>".
+    parsed = urlparse(text if "://" in text else f"https://{text}")
+    host = (parsed.hostname or "").lower().removeprefix("www.")
+    host_with_www = (parsed.hostname or "").lower()
+
+    if host_with_www in SHORT_HOSTS or host in SHORT_HOSTS:
+        return _validated(parsed.path.lstrip("/").split("/")[0], url_or_id)
+
+    if host_with_www not in WATCH_HOSTS and host not in WATCH_HOSTS:
+        raise ValueError(f"Not a YouTube URL: {url_or_id}")
 
     video_ids = parse_qs(parsed.query).get("v")
     if video_ids:
-        return video_ids[0]
+        return _validated(video_ids[0], url_or_id)
+
+    parts = [part for part in parsed.path.split("/") if part]
+    if len(parts) >= 2 and parts[0] in PATH_PREFIXES:
+        return _validated(parts[1], url_or_id)
 
     raise ValueError(f"Could not extract a video id from: {url_or_id}")
 
