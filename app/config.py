@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     caption_langs: str = "fil,tl,en"
     use_youtube_captions: bool = True
 
+    # Whisper silently drops speech that sits under music, so gaps in its
+    # output are back-filled from the YouTube caption track when one exists.
+    fill_whisper_gaps: bool = True
+
     transcription_backend: str = "local"  # local | groq | none
 
     whisper_model_size: str = "small"
@@ -22,15 +26,22 @@ class Settings(BaseSettings):
     whisper_language: str = "tl"
     whisper_beam_size: int = 5
     whisper_vad_filter: bool = True
-    whisper_initial_prompt: str = (
-        "Ito ay FlipTop battle rap sa Tagalog at English. "
-        "Mga bar, punchline, rebuttal, at flip."
-    )
+    # Kept to a few words on purpose: Whisper emits its prompt as transcript
+    # text over music, so a long prompt shows up as phantom lines.
+    whisper_initial_prompt: str = "FlipTop battle rap."
 
     groq_api_key: str = ""
     groq_api_base: str = "https://api.groq.com/openai/v1"
     groq_model: str = "whisper-large-v3"
     groq_chunk_seconds: int = 600
+
+    # Free-tier ceilings (console.groq.com/docs/rate-limits). Uploads are
+    # capped at 25 MB and requests at 20/min; paid tiers raise both.
+    groq_max_upload_mb: float = 24.0
+    groq_chunk_bitrate: str = "64k"
+    groq_requests_per_minute: int = 20
+    groq_max_retries: int = 5
+    groq_daily_audio_seconds: int = 28800
 
     @property
     def caption_lang_list(self) -> list[str]:

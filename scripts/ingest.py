@@ -2,6 +2,11 @@
 """Ingest a battle from the command line.
 
     python scripts/ingest.py "https://www.youtube.com/watch?v=Xfsbnz_WTLs"
+    python scripts/ingest.py "https://youtu.be/Xfsbnz_WTLs" --whisper
+
+Most FlipTop uploads carry Filipino auto-captions, so the default tiered path
+never reaches Whisper. Pass --whisper to skip captions and use the configured
+Whisper backend instead.
 """
 
 import argparse
@@ -26,11 +31,22 @@ def main() -> int:
         action="store_true",
         help="Fail instead of transcribing audio when captions are missing",
     )
+    parser.add_argument(
+        "--whisper",
+        action="store_true",
+        help="Skip YouTube captions and transcribe the audio even if captions exist",
+    )
     args = parser.parse_args()
+
+    if args.whisper and args.no_whisper:
+        parser.error("--whisper and --no-whisper contradict each other")
 
     init_db()
     battle = ingest_battle(
-        args.url, force=args.force, allow_whisper=not args.no_whisper
+        args.url,
+        force=args.force or args.whisper,
+        allow_whisper=not args.no_whisper,
+        prefer_whisper=args.whisper,
     )
 
     print(f"\n  video_id : {battle.video_id}")

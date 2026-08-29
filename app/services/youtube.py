@@ -87,6 +87,11 @@ def watch_url(video_id: str) -> str:
     return f"https://www.youtube.com/watch?v={video_id}"
 
 
+def watch_url_at(video_id: str, seconds: float) -> str:
+    """Deep link that starts playback at a given point in the battle."""
+    return f"{watch_url(video_id)}&t={max(0, int(seconds))}s"
+
+
 def fetch_info(video_id: str) -> dict:
     options = {
         "quiet": True,
@@ -96,6 +101,55 @@ def fetch_info(video_id: str) -> dict:
     }
     with yt_dlp.YoutubeDL(options) as ydl:
         return ydl.extract_info(watch_url(video_id), download=False)
+
+
+def list_playlist_videos(url: str, limit: int | None = None) -> list[dict]:
+    """Enumerate a playlist or channel cheaply, without per-video metadata calls.
+
+    Channel URLs come back as a playlist of playlists, so entries are
+    flattened one level. Duration is present for most YouTube entries but not
+    guaranteed, so callers must tolerate None.
+    """
+    options = {
+        "quiet": True,
+        "no_warnings": True,
+        "skip_download": True,
+        "extract_flat": "in_playlist",
+    }
+    if limit:
+        options["playlistend"] = limit
+
+    with yt_dlp.YoutubeDL(options) as ydl:
+        info = ydl.extract_info(url, download=False)
+
+    videos: list[dict] = []
+    seen: set[str] = set()
+
+    def collect(entries) -> None:
+        for entry in entries or []:
+            if limit and len(videos) >= limit:
+                return
+            if not entry:
+                continue
+            if entry.get("_type") == "playlist":
+                collect(entry.get("entries"))
+                continue
+
+            video_id = entry.get("id") or ""
+            if not VIDEO_ID_RE.match(video_id) or video_id in seen:
+                continue
+
+            seen.add(video_id)
+            videos.append(
+                {
+                    "video_id": video_id,
+                    "title": entry.get("title") or "",
+                    "duration": entry.get("duration"),
+                }
+            )
+
+    collect(info.get("entries") if info.get("_type") else [info])
+    return videos
 
 
 def _summarise(tracks: dict) -> dict[str, list[str]]:

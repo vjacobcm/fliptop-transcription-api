@@ -33,7 +33,19 @@ def render(battle: Battle, segments: list, fmt: str) -> str:
     if fmt == "vtt":
         return to_vtt(segments)
     if fmt == "timed":
-        return "\n".join(f"[{_timestamp(s.start)}] {s.text}" for s in segments)
+        lines = []
+        cursor = 0.0
+        for segment in segments:
+            if segment.start - cursor >= 4:
+                lines.append(
+                    f"[-- {_timestamp(cursor)}–{_timestamp(segment.start)} missing --]"
+                )
+            lines.append(f"[{_timestamp(segment.start)}] {segment.text}")
+            cursor = max(cursor, segment.end)
+        duration = battle.duration or 0
+        if duration and duration - cursor >= 4:
+            lines.append(f"[-- {_timestamp(cursor)}–{_timestamp(duration)} missing --]")
+        return "\n".join(lines)
     if fmt == "json":
         payload = battle.model_dump(mode="json")
         payload["segments"] = [

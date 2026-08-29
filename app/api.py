@@ -1,7 +1,8 @@
 import logging
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Response
 from fastapi.responses import JSONResponse, PlainTextResponse
+from sqlalchemy import func
 from sqlmodel import Session, select
 
 from app.config import settings
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 FORMAT_PATTERN = "^(json|srt|vtt|text)$"
+STATUS_PATTERN = "^(pending|processing|ready|failed)$"
 
 
 def resolve_video_id(url_or_id: str) -> str:
@@ -76,8 +78,36 @@ def health() -> dict:
 
 
 @router.get("/battles", response_model=list[BattleOut])
-def list_battles(session: Session = Depends(get_session)) -> list[Battle]:
-    return list(session.exec(select(Battle).order_by(Battle.created_at.desc())))
+def list_battles(
+    response: Response,
+    status: str | None = Query(None, pattern=STATUS_PATTERN),
+    source: str | None = Query(None, description="e.g. youtube_auto, whisper_local"),
+    channel: str | None = Query(None, description="Case-insensitive substring match"),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    session: Session = Depends(get_session),
+) -> list[Battle]:
+    filters = []
+    if status:
+        filters.append(Battle.status == status)
+    if source:
+        filters.append(Battle.source == source)
+    if channel:
+        filters.append(Battle.channel.ilike(f"%{channel}%"))
+
+    total = session.exec(
+        select(func.count()).select_from(Battle).where(*filters)
+    ).one()
+    response.headers["X-Total-Count"] = str(total)
+
+    statement = (
+        select(Battle)
+        .where(*filters)
+        .order_by(Battle.created_at.desc())
+        .limit(limit)
+        .offset(offset)
+    )
+    return list(session.exec(statement))
 
 
 @router.get("/youtube/{video_id}/captions")

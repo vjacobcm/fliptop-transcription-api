@@ -239,6 +239,56 @@ def main() -> int:
 
     client.delete(f"/battles/{VIDEO_ID}")
 
+    print("\nWhisper cleanup")
+    from app.services.merge import drop_hollow, fill_gaps, find_gaps
+    from app.services.transcribe import clean_segments
+
+    echoed = clean_segments(
+        [
+            {"start": 0, "end": 30, "text": "Mga bar, punchline, rebuttal, at flip."},
+            {
+                "start": 30,
+                "end": 60,
+                "text": "Mga bar, punchline, rebuttal, at flip. "
+                "Mga bar, punchline, rebuttal, at flip.",
+            },
+            {"start": 60, "end": 62, "text": "Kaya Ruff mag-upgrade"},
+        ],
+        "FlipTop battle rap.",
+    )
+    ok &= check(
+        "repeated prompt echo dropped",
+        [s["text"] for s in echoed] == ["Kaya Ruff mag-upgrade"],
+        str([s["text"] for s in echoed]),
+    )
+
+    hollow, n = drop_hollow(
+        [
+            {"start": 0, "end": 30, "text": "Kaya gago!"},
+            {"start": 30, "end": 33, "text": "Start pa lang yung round 3."},
+        ]
+    )
+    ok &= check("30s two-word window dropped", n == 1 and len(hollow) == 1, f"n={n}")
+
+    primary = [{"start": 0, "end": 10, "text": "intro"}, {"start": 40, "end": 50, "text": "outro"}]
+    filler = [
+        {"start": 10, "end": 40, "text": "the missing bars"},
+        {"start": 80, "end": 90, "text": "outside the gap"},
+    ]
+    merged, borrowed = fill_gaps(
+        primary,
+        filler,
+        duration=50,
+        primary_source="whisper_groq",
+        filler_source="youtube_auto",
+    )
+    ok &= check("captions fill the open gap", borrowed == 1, f"borrowed={borrowed}")
+    ok &= check(
+        "filler outside a gap is ignored",
+        all(s["text"] != "outside the gap" for s in merged),
+    )
+    ok &= check("no 4s+ holes remain in the patched span", not find_gaps(merged, 50))
+
     print("\n" + ("All checks passed.\n" if ok else "Some checks FAILED.\n"))
     return 0 if ok else 1
 

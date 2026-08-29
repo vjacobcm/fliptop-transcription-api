@@ -45,3 +45,6 @@ class Segment(SQLModel, table=True):
     start: float
     end: float
     text: str
+    # Whisper drops speech under music, so a battle can mix sources: most
+    # segments from Whisper, the gaps back-filled from YouTube captions.
+    source: str | None = None
