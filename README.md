@@ -37,6 +37,10 @@ uvicorn app.main:app --reload
 
 Interactive docs: <http://127.0.0.1:8000/docs>
 
+A Postman collection lives in `postman/FlipTop-API.postman_collection.json`.
+Import that file in Postman (Import → file). Companion requests are the watch
+overlay; Ops is catalogue ingest and mention review.
+
 ## Transcribing in batches
 
 Groq's free tier covers 8 hours of audio a day with no card, which is enough to

@@ -1,11 +1,10 @@
 import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Response
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import PlainTextResponse
 from sqlalchemy import func
 from sqlmodel import Session, select
 
-from app.config import settings
 from app.db import get_session
 from app.models import Battle, BattleStatus, Entry, Mention, MentionStatus, Segment
 from app.schemas import (
@@ -66,20 +65,6 @@ def stored_transcript(session: Session, video_id: str, fmt: str):
         )
 
     return render_transcript(battle, segments, fmt)
-
-
-def accepted(video_id: str, status: str, detail: str) -> JSONResponse:
-    """202 for work that is too slow to finish inside the request."""
-    return JSONResponse(
-        status_code=202,
-        content={
-            "video_id": video_id,
-            "status": status,
-            "detail": detail,
-            "status_url": f"/battles/{video_id}",
-            "transcript_url": f"/battles/{video_id}/transcript",
-        },
-    )
 
 
 @router.get("/health")
@@ -177,83 +162,6 @@ def ingest(
     session.commit()
     session.refresh(queued)
     return queued
-
-
-@router.get("/transcript")
-def transcript_by_url(
-    url: str = Query(..., description="YouTube URL or video id"),
-    format: str = Query("json", pattern=FORMAT_PATTERN),
-    session: Session = Depends(get_session),
-):
-    """Look up a stored transcript by link. Never ingests."""
-    return stored_transcript(session, resolve_video_id(url), format)
-
-
-@router.post("/transcript")
-def transcript_for_url(
-    body: IngestRequest,
-    background_tasks: BackgroundTasks,
-    format: str = Query("json", pattern=FORMAT_PATTERN),
-    session: Session = Depends(get_session),
-):
-    """Return a transcript for a link, ingesting first when that is cheap.
-
-    Captions resolve in seconds, so those are served inline. Anything needing
-    Whisper is queued and answered with 202 plus a URL to poll.
-    """
-    video_id = resolve_video_id(body.url)
-    battle = session.get(Battle, video_id)
-
-    if battle and not body.force:
-        if battle.status == BattleStatus.READY:
-            segments = get_segments(session, video_id)
-            if segments:
-                return render_transcript(battle, segments, format)
-        elif battle.status in (BattleStatus.PENDING, BattleStatus.PROCESSING):
-            return accepted(video_id, battle.status, "Ingest already in progress.")
-
-    try:
-        info = youtube.fetch_info(video_id)
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=502, detail=f"yt-dlp failed: {exc}") from exc
-
-    if youtube.pick_caption_track(info) is not None:
-        result = ingest_battle(
-            body.url, force=body.force, allow_whisper=body.allow_whisper, info=info
-        )
-        if result.status == BattleStatus.FAILED:
-            raise HTTPException(status_code=502, detail=result.error or "Ingest failed")
-
-        # ingest_battle committed from its own session; drop anything cached here.
-        session.expire_all()
-        return stored_transcript(session, video_id, format)
-
-    if not body.allow_whisper or settings.transcription_backend.lower() == "none":
-        raise HTTPException(
-            status_code=409,
-            detail="No usable YouTube captions and Whisper transcription is disabled.",
-        )
-
-    if battle is None:
-        battle = Battle(
-            video_id=video_id,
-            url=youtube.watch_url(video_id),
-            title=info.get("title") or "",
-            channel=info.get("uploader") or info.get("channel"),
-            duration=info.get("duration"),
-            status=BattleStatus.PENDING,
-        )
-        session.add(battle)
-        session.commit()
-
-    background_tasks.add_task(
-        ingest_battle, body.url, force=body.force, allow_whisper=True
-    )
-    return accepted(
-        video_id,
-        BattleStatus.PENDING,
-        "No YouTube captions; transcribing audio with Whisper. Poll status_url.",
-    )
 
 
 @router.get("/glossary", response_model=list[EntryOut])

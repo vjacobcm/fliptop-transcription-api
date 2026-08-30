@@ -184,58 +184,33 @@ def main() -> int:
 
     ok &= check("404 for unknown battle", client.get("/battles/nope").status_code == 404)
 
-    print("\nLookup by link")
+    print("\nIngest")
     watch_url = f"https://www.youtube.com/watch?v={VIDEO_ID}"
 
-    by_url = client.get("/transcript", params={"url": watch_url}).json()
+    bad_url = client.post("/battles/ingest", json={"url": "https://www.youtube.com/"})
     ok &= check(
-        "GET /transcript?url= resolves watch link",
-        by_url["video_id"] == VIDEO_ID,
-        by_url.get("video_id", ""),
+        "400 for malformed youtube url",
+        bad_url.status_code == 400,
+        str(bad_url.status_code),
     )
 
-    short = client.get("/transcript", params={"url": f"https://youtu.be/{VIDEO_ID}"})
-    ok &= check("youtu.be short link resolves", short.json()["video_id"] == VIDEO_ID)
-
-    as_text = client.get(
-        "/transcript", params={"url": VIDEO_ID, "format": "text"}
-    ).text
-    ok &= check("bare video id accepted", as_text.startswith("first line continues"))
-
-    bad_url = client.get("/transcript", params={"url": "https://www.youtube.com/"})
+    missing = client.get("/battles/aaaaaaaaaaa")
     ok &= check(
-        "400 for malformed youtube url", bad_url.status_code == 400, str(bad_url.status_code)
-    )
-
-    # Well formed, so it gets past validation and misses on lookup instead.
-    missing = client.get("/transcript", params={"url": "https://youtu.be/aaaaaaaaaaa"})
-    ok &= check(
-        "404 for valid link that is not ingested",
+        "404 for valid id that is not ingested",
         missing.status_code == 404,
         str(missing.status_code),
     )
 
-    # Already READY, so this returns inline without reaching YouTube.
-    cached = client.post("/transcript", json={"url": watch_url})
+    # Already READY and not force, so this returns the stored row without YouTube.
+    cached = client.post("/battles/ingest", json={"url": watch_url})
     ok &= check(
-        "POST /transcript serves stored battle inline",
-        cached.status_code == 200 and len(cached.json()["segments"]) == 2,
+        "POST /battles/ingest skips a ready battle",
+        cached.status_code == 200 and cached.json()["video_id"] == VIDEO_ID,
         str(cached.status_code),
     )
 
-    with Session(engine) as session:
-        stored = session.get(Battle, VIDEO_ID)
-        stored.status = BattleStatus.PROCESSING
-        session.add(stored)
-        session.commit()
-
-    in_flight = client.post("/transcript", json={"url": watch_url})
-    ok &= check(
-        "POST /transcript returns 202 while ingest is running",
-        in_flight.status_code == 202
-        and in_flight.json()["status_url"] == f"/battles/{VIDEO_ID}",
-        str(in_flight.status_code),
-    )
+    gone = client.get("/transcript")
+    ok &= check("GET /transcript is gone", gone.status_code == 404)
 
     client.delete(f"/battles/{VIDEO_ID}")
 

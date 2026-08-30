@@ -1,0 +1,181 @@
+{
+  "info": {
+    "_postman_id": "a8f0c3e1-7b2d-4e9a-91c4-2b6e8d1a4c70",
+    "name": "FlipTop API",
+    "description": "Local catalogue API for FlipTop battle transcripts and companion highlights.\n\nCompanion (watch overlay): Get battle → Get transcript → Get mentions.\nOps is for filling and curating the catalogue — do not call it from the watch page.\n\nImport this file in Postman (Import → file). Set `videoId` to a battle you have already ingested. Start the server: `uvicorn app.main:app --reload`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8000" },
+    { "key": "videoId", "value": "YHUaTOiGXBI" },
+    { "key": "mentionId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Companion",
+      "description": "The watch-page contract. The extension already has the YouTube video id. Call these GETs once per video; filter mentions by currentTime in the client.",
+      "item": [
+        {
+          "name": "Get battle",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/battles/{{videoId}}",
+            "description": "Companion entry point. Metadata only (title, status, source, duration) — no segments.\n\n200 + status=ready → fetch transcript and mentions.\n200 + pending/processing → still ingesting; do not overlay yet.\n404 → not in the catalogue. Show nothing; do not ingest from the watch page."
+          },
+          "response": []
+        },
+        {
+          "name": "Get transcript",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/battles/{{videoId}}/transcript?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["battles", "{{videoId}}", "transcript"],
+              "query": [{ "key": "format", "value": "json" }]
+            },
+            "description": "Timestamped lines for the overlay. `format` is json (default), srt, vtt, or text. JSON includes battle metadata plus segments with idx, start, end, and text.\n\nSync captions to the player with start/end vs currentTime.\n404 if never ingested. 409 if the row exists but has no segments yet.\nThis route never transcribes."
+          },
+          "response": []
+        },
+        {
+          "name": "Get mentions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/battles/{{videoId}}/mentions",
+            "description": "All highlight marks for the battle (rejected ones omitted).\nLoad once with the transcript. Each mention has start/end for the playhead, char_start/char_end + alias to underline, and a nested entry (name, kind).\n\nEmpty list means annotated but nothing in the glossary hit.\n404 if the battle is not ingested."
+          },
+          "response": []
+        },
+        {
+          "name": "Get mentions at time",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/battles/{{videoId}}/mentions?at=651",
+              "host": ["{{baseUrl}}"],
+              "path": ["battles", "{{videoId}}", "mentions"],
+              "query": [{ "key": "at", "value": "651" }]
+            },
+            "description": "Same as Get mentions, filtered to marks whose [start, end] covers `at` (seconds). Duplicate names from overlapping segments collapse to one entry.\n\nUseful for debugging a specific second. The companion should filter the full list in memory instead of calling this on every tick."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Catalogue",
+      "description": "Browse what is already stored. Not used on the watch tick.",
+      "item": [
+        {
+          "name": "List battles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/battles?status=ready&limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["battles"],
+              "query": [
+                { "key": "status", "value": "ready" },
+                { "key": "source", "value": "whisper_groq", "disabled": true },
+                { "key": "channel", "value": "FlipTop", "disabled": true },
+                { "key": "limit", "value": "50" },
+                { "key": "offset", "value": "0" }
+              ]
+            },
+            "description": "Paginated catalogue, newest ingest first (not YouTube upload date).\nBody is a JSON array. The unpaginated total is in the X-Total-Count header.\n\nFilters: status (pending|processing|ready|failed), source (youtube_auto, whisper_groq, …), channel (substring)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get glossary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/glossary",
+            "description": "Every named entry the matcher knows (person, event, place). No aliases in the payload.\nOptional for a companion legend — each mention already embeds its entry."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ops",
+      "description": "Fill and curate the catalogue. Ingest talks to YouTube and can run Whisper.",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health",
+            "description": "Process liveness. Returns {\"status\":\"ok\"}. Does not check Groq, yt-dlp, or disk."
+          },
+          "response": []
+        },
+        {
+          "name": "Probe captions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/youtube/{{videoId}}/captions",
+            "description": "Lists YouTube caption tracks without writing the database.\n`would_use` is the track ingest would pick (manual over auto, fil/tl/en).\n\nUse this before spending Groq quota: if would_use is set, default ingest takes captions and never calls Whisper. 400 on a bad id, 502 if yt-dlp fails."
+          },
+          "response": []
+        },
+        {
+          "name": "Ingest battle",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/battles/ingest?wait=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["battles", "ingest"],
+              "query": [{ "key": "wait", "value": "true" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://www.youtube.com/watch?v={{videoId}}\",\n  \"force\": false,\n  \"allow_whisper\": true\n}"
+            },
+            "description": "Explicit catalogue write. Tiers: manual captions → auto captions → Whisper if allow_whisper and no captions. Does not force Whisper (use scripts/ingest.py --whisper for that).\n\nwait=true blocks until done. wait=false queues an in-process task that dies if the server restarts. force=true replaces an already-ready battle.\n400 bad URL, 502 ingest failed."
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm mention",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/mentions/{{mentionId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "description": "Set a mention to detected, confirmed, or rejected.\nRe-running annotate keeps confirmed and rejected; only detected hits refresh.\n\nCopy a mention id from Get mentions into the mentionId collection variable.\nUse \"rejected\" for false positives. 404 if that id does not exist."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete battle",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/battles/{{videoId}}",
+            "description": "Removes the battle, its segments, and its mentions. Glossary entries stay.\n404 if it was never ingested. Check videoId before sending."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
