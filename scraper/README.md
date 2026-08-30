@@ -13,6 +13,8 @@ The crawl uses the channel **Videos** tab, not Shorts. Anything with a `/shorts/
 
 Only public video listings are scraped; nothing else is downloaded.
 
+A second command snapshots emcee profiles from the [official site](https://www.fliptop.com.ph/emcees) so the companion glossary can highlight people, hometowns, and crews.
+
 ## Setup
 
 Uses the same venv as the transcription API (`yt-dlp` is already in the root `requirements.txt`). From the repo root:
@@ -38,6 +40,35 @@ python -m fliptop_scraper --limit 200       # first N channel videos only
 ```
 
 The channel dump can take a few minutes. Use `--limit` to smoke-test matching.
+
+## Official-site glossary
+
+```bash
+cd scraper
+python -m fliptop_scraper.site
+```
+
+Crawls `/emcees` (paginated) and each profile. Writes `site.json` with raw emcee records plus compiled glossary `entries` (people, groups, places). The API loads that file on startup via `seed_glossary()`. Useful flags:
+
+```bash
+python -m fliptop_scraper.site --out site.json
+python -m fliptop_scraper.site --limit 5          # first N profiles only
+python -m fliptop_scraper.site --delay 1.0        # seconds between requests
+python -m fliptop_scraper.site --stdout
+```
+
+The crawl is polite (~0.75s between requests; the site's robots.txt is open). After a fresh snapshot, re-annotate stored battles:
+
+```bash
+python scripts/annotate.py --all
+```
+
+Parser and normalize checks (no network):
+
+```bash
+cd scraper
+PYTHONPATH=. python -m unittest tests.test_site
+```
 
 ## Output
 

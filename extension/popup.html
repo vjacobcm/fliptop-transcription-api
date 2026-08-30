@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FlipTop Companion</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <p class="kicker">FlipTop</p>
+      <h1>Companion</h1>
+    </header>
+
+    <label class="toggle">
+      <input type="checkbox" id="enabled" />
+      <span>Show battle subtitles</span>
+    </label>
+
+    <label class="toggle">
+      <input type="checkbox" id="showMentions" />
+      <span>Show references beside the video</span>
+    </label>
+
+    <label class="field">
+      API
+      <input type="url" id="apiBase" spellcheck="false" />
+    </label>
+
+    <section id="status" class="status">
+      <p class="state" id="state">Checking this tab…</p>
+      <p class="title" id="title" hidden></p>
+      <p class="meta" id="meta" hidden></p>
+    </section>
+
+    <p class="hint">
+      Only reads battles already in your catalogue. Turn off YouTube captions if
+      they sit on top of these lines. Shortcut: Alt+F.
+    </p>
+
+    <script src="shared.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

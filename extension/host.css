@@ -1,0 +1,7 @@
+#ft-companion-host {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 60 !important;
+  pointer-events: none !important;
+  font-size: 22px;
+}

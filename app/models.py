@@ -54,6 +54,7 @@ class EntryKind:
     PERSON = "person"
     EVENT = "event"
     PLACE = "place"
+    GROUP = "group"
     WORK = "work"
     CONCEPT = "concept"
 

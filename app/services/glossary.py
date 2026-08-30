@@ -7,9 +7,11 @@ so the companion does not light up the names already on the thumbnail.
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
 from sqlmodel import Session, delete, select
 
@@ -31,6 +33,9 @@ _SLUG_RE = re.compile(r"[^a-z0-9]+")
 
 # Two-letter aliases are almost always noise except well-known emcee tags.
 _SHORT_OK = frozenset({"gl"})
+
+# Official-site snapshot written by `python -m fliptop_scraper.site`.
+SITE_SNAPSHOT = Path(__file__).resolve().parents[2] / "scraper" / "site.json"
 
 # Recurring FlipTop furniture plus names that show up in the stored battles.
 # Aliases are extra spellings; the canonical name is always an alias too.
@@ -193,19 +198,33 @@ def find_spans(text: str, aliases: list[tuple[str, int]]) -> list[SpanHit]:
 
 
 def upsert_entry(
-    session: Session, name: str, kind: str, aliases: list[str] | None = None
+    session: Session,
+    name: str,
+    kind: str,
+    aliases: list[str] | None = None,
+    blurb: str | None = None,
+    *,
+    force_blurb: bool = False,
 ) -> Entry:
     slug = slugify(name)
+    incoming = (blurb or "").strip()
     entry = session.exec(select(Entry).where(Entry.slug == slug)).first()
     if entry is None:
-        entry = Entry(slug=slug, name=name, kind=kind)
+        entry = Entry(slug=slug, name=name, kind=kind, blurb=incoming)
         session.add(entry)
         session.commit()
         session.refresh(entry)
-    elif not entry.kind:
-        entry.kind = kind
-        session.add(entry)
-        session.commit()
+    else:
+        changed = False
+        if not entry.kind:
+            entry.kind = kind
+            changed = True
+        if incoming and (force_blurb or not (entry.blurb or "").strip()):
+            entry.blurb = incoming
+            changed = True
+        if changed:
+            session.add(entry)
+            session.commit()
 
     labels = {name, *(aliases or [])}
     for label in labels:
@@ -227,11 +246,44 @@ def upsert_entry(
     return entry
 
 
-def seed_glossary(session: Session) -> int:
-    """Insert the hand list. Idempotent."""
+def load_site_entries(path: Path | None = None) -> list[dict]:
+    """Read compiled glossary rows from the official-site snapshot."""
+    snapshot = Path(path) if path is not None else SITE_SNAPSHOT
+    if not snapshot.is_file():
+        return []
+    try:
+        payload = json.loads(snapshot.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        logger.warning("Could not read site snapshot %s: %s", snapshot, exc)
+        return []
+    rows = payload.get("entries") if isinstance(payload, dict) else payload
+    if not isinstance(rows, list):
+        logger.warning("Site snapshot %s has no entries list", snapshot)
+        return []
+    return [row for row in rows if isinstance(row, dict) and row.get("name")]
+
+
+def seed_glossary(session: Session, site_path: Path | None = None) -> int:
+    """Insert the hand list, then official-site rows. Idempotent."""
     before = session.exec(select(Entry)).all()
     for row in SEED:
-        upsert_entry(session, row["name"], row["kind"], list(row.get("aliases") or ()))
+        blurb = (row.get("blurb") or "").strip()
+        upsert_entry(
+            session,
+            row["name"],
+            row["kind"],
+            list(row.get("aliases") or ()),
+            blurb=blurb or None,
+            force_blurb=bool(blurb),
+        )
+    for row in load_site_entries(site_path):
+        upsert_entry(
+            session,
+            row["name"],
+            row.get("kind") or EntryKind.PERSON,
+            list(row.get("aliases") or ()),
+            blurb=row.get("blurb") or None,
+        )
     after = session.exec(select(Entry)).all()
     return len(after) - len(before)
 

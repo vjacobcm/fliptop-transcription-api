@@ -40,6 +40,7 @@ class EntryOut(BaseModel):
     slug: str
     name: str
     kind: str
+    blurb: str = ""
 
 
 class MentionOut(BaseModel):
@@ -52,6 +53,7 @@ class MentionOut(BaseModel):
     alias: str
     status: str
     detector: str
+    line_gloss: str | None = None
     entry: EntryOut
 
 

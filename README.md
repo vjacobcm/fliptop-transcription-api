@@ -41,6 +41,21 @@ A Postman collection lives in `postman/FlipTop-API.postman_collection.json`.
 Import that file in Postman (Import → file). Companion requests are the watch
 overlay; Ops is catalogue ingest and mention review.
 
+## Chrome companion
+
+`extension/` is an unpacked Manifest V3 extension. On a YouTube watch page it
+asks the API for that video — battle, transcript, mentions — and paints timed
+subtitles on the player. It never ingests. If the video is not in the catalogue
+the page stays untouched.
+
+1. Start the API (`uvicorn app.main:app --reload`).
+2. Chrome → `chrome://extensions` → Developer mode → Load unpacked → `extension/`.
+3. Open an ingested battle, e.g. `https://www.youtube.com/watch?v=YHUaTOiGXBI`.
+4. Use the toolbar popup to turn the overlay on or off. Alt+F also toggles it.
+
+Turn off YouTube's own captions if they sit on top of the companion lines.
+The popup talks to `http://127.0.0.1:8000` by default.
+
 ## Transcribing in batches
 
 Groq's free tier covers 8 hours of audio a day with no card, which is enough to

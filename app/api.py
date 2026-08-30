@@ -197,8 +197,13 @@ def _mention_out(mention: Mention, entry) -> MentionOut:
         alias=mention.alias,
         status=mention.status,
         detector=mention.detector,
+        line_gloss=mention.line_gloss,
         entry=EntryOut(
-            id=entry.id, slug=entry.slug, name=entry.name, kind=entry.kind
+            id=entry.id,
+            slug=entry.slug,
+            name=entry.name,
+            kind=entry.kind,
+            blurb=entry.blurb,
         ),
     )
 
