@@ -122,3 +122,15 @@ Two things go wrong on a large run, and they need different responses:
 
 Audio downloads and Groq are unaffected by a caption block, so the Whisper path
 keeps working while one is in effect.
+
+After a backfill, refresh the combined transcript dump so it matches the
+database:
+
+```bash
+python scripts/export_all.py           # transcripts/all_battles.txt
+python scripts/export_all.py --format timed
+```
+
+It writes an index followed by every ready battle, and reports how many
+catalogue battles are still untranscribed. The file is derived from the
+database and is gitignored; re-run the script rather than editing it.
