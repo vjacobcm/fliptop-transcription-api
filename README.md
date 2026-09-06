@@ -134,3 +134,18 @@ python scripts/export_all.py --format timed
 It writes an index followed by every ready battle, and reports how many
 catalogue battles are still untranscribed. The file is derived from the
 database and is gitignored; re-run the script rather than editing it.
+
+### Disk use
+
+Whisper runs cache downloaded audio in `data/audio/`, at roughly 25 MB per
+battle. Groq needs that split into upload chunks, which costs about as much
+again, so the chunks are deleted once every chunk of a battle has come back —
+a failed run keeps them so a retry does not re-encode. Set
+`KEEP_GROQ_CHUNKS=true` to hold on to them when debugging a bad transcript.
+
+Source mp3s are kept, since they make a re-transcribe free. They are safe to
+delete whenever the transcript is stored; the next run just downloads again:
+
+```bash
+rm -f data/audio/*.mp3
+```

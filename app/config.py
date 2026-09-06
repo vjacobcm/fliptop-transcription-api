@@ -48,6 +48,10 @@ class Settings(BaseSettings):
     groq_max_retries: int = 5
     groq_daily_audio_seconds: int = 28800
 
+    # Upload chunks roughly double the disk a battle costs and are re-derivable
+    # from the source mp3, so they go once the transcript is in hand.
+    keep_groq_chunks: bool = False
+
     @property
     def caption_lang_list(self) -> list[str]:
         return [lang.strip() for lang in self.caption_langs.split(",") if lang.strip()]

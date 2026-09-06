@@ -7,6 +7,7 @@ Uses synthetic captions so it runs without touching YouTube.
 """
 
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -263,6 +264,33 @@ def main() -> int:
         all(s["text"] != "outside the gap" for s in merged),
     )
     ok &= check("no 4s+ holes remain in the patched span", not find_gaps(merged, 50))
+
+    print("\nAudio housekeeping")
+    from app.config import settings as app_settings
+    from app.services.transcribe import _chunk_dir, _discard_chunks
+
+    source = app_settings.audio_dir / "selftestaudio.mp3"
+    source.write_bytes(b"not really audio")
+    chunks = _chunk_dir(source)
+    chunks.mkdir(parents=True, exist_ok=True)
+    (chunks / "000.mp3").write_bytes(b"chunk")
+
+    _discard_chunks(source)
+    ok &= check("upload chunks are removed", not chunks.exists())
+    ok &= check("the source mp3 is kept", source.is_file())
+
+    # A small battle is uploaded whole, so its only "chunk" is the source file.
+    _discard_chunks(source)
+    ok &= check("a second pass is harmless", source.is_file())
+
+    app_settings.keep_groq_chunks = True
+    chunks.mkdir(parents=True, exist_ok=True)
+    _discard_chunks(source)
+    ok &= check("keep_groq_chunks preserves them", chunks.is_dir())
+    app_settings.keep_groq_chunks = False
+
+    shutil.rmtree(chunks, ignore_errors=True)
+    source.unlink(missing_ok=True)
 
     print("\nGlossary matching")
     from app.services.glossary import (

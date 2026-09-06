@@ -3,6 +3,7 @@
 import logging
 import math
 import re
+import shutil
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -70,6 +71,31 @@ def _max_chunk_seconds() -> int:
     return max(60, min(settings.groq_chunk_seconds, fits))
 
 
+def _chunk_dir(audio_path: Path) -> Path:
+    return settings.audio_dir / f"{audio_path.stem}_chunks"
+
+
+def _discard_chunks(audio_path: Path) -> None:
+    """Drop the upload chunks once a battle is transcribed.
+
+    They are re-derivable from the source mp3 and cost about as much disk as
+    it does, so only keep them while a run might still retry them.
+    """
+    if settings.keep_groq_chunks:
+        return
+
+    chunk_dir = _chunk_dir(audio_path)
+    if not chunk_dir.is_dir():
+        return
+
+    try:
+        shutil.rmtree(chunk_dir)
+    except OSError as exc:  # noqa: BLE001 - a stuck temp file must not fail the run
+        logger.warning("Could not remove %s: %s", chunk_dir, exc)
+    else:
+        logger.info("Removed upload chunks in %s", chunk_dir)
+
+
 def _split_audio(audio_path: Path) -> list[tuple[Path, float]]:
     """Split into chunks that stay under Groq's upload limit, with time offsets."""
     from pydub import AudioSegment
@@ -83,7 +109,7 @@ def _split_audio(audio_path: Path) -> list[tuple[Path, float]]:
     if total_seconds <= chunk_seconds and size_mb <= settings.groq_max_upload_mb:
         return [(audio_path, 0.0)]
 
-    chunk_dir = settings.audio_dir / f"{audio_path.stem}_chunks"
+    chunk_dir = _chunk_dir(audio_path)
     chunk_dir.mkdir(parents=True, exist_ok=True)
 
     boundaries = [i * chunk_seconds for i in range(math.ceil(total_seconds / chunk_seconds))]
@@ -274,6 +300,9 @@ def transcribe_groq(audio_path: Path, prompt: str | None = None) -> Transcriptio
                     "text": text,
                 }
             )
+
+    # Only once every chunk came back, so a failed run can still reuse them.
+    _discard_chunks(audio_path)
 
     return TranscriptionResult(
         segments=clean_segments(segments, data.get("prompt")),
