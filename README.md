@@ -88,3 +88,37 @@ into the one before it so Whisper is never fed mostly-silence.
 
 Each battle gets a prompt seeded with the emcee names parsed from its title, so
 proper nouns come back spelled correctly.
+
+## Building the catalogue
+
+`--catalogue` takes its candidates from `scraper/battles.json` instead of a
+playlist, and `--captions-only` restricts the run to YouTube's own caption
+tracks. That combination downloads no audio and spends no Groq quota, so it is
+the cheapest way to grow the catalogue:
+
+```bash
+python scripts/backfill.py --catalogue --captions-only --dry-run
+python scripts/backfill.py --catalogue --captions-only --delay 8
+```
+
+Battles already stored as `ready` are skipped, so the command is safe to re-run
+and will pick up wherever the last one left off.
+
+Two things go wrong on a large run, and they need different responses:
+
+- **`429 Too Many Requests`.** YouTube rate-limits the caption endpoint after a
+  few dozen downloads and blocks the IP for hours. Neither a browser
+  User-Agent nor yt-dlp's own downloader gets around it. Caption downloads
+  retry with exponential backoff, and the run aborts once `--max-throttles`
+  battles fail in a row rather than grinding through the rest. The captions are
+  fine — re-run later with a larger `--delay`.
+- **No caption track at all.** Some battles have never had captions generated,
+  so no amount of waiting helps and they need Whisper. Transcribe just those,
+  leaving the rate-limited ones for a later captions pass:
+
+  ```bash
+  python scripts/backfill.py --catalogue --only-no-captions
+  ```
+
+Audio downloads and Groq are unaffected by a caption block, so the Whisper path
+keeps working while one is in effect.

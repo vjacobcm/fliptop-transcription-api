@@ -6,5 +6,6 @@ venv/
 *.db
 *.db-journal
 data/
+transcripts/
 .DS_Store
 .pytest_cache/

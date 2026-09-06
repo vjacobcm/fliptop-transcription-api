@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     caption_langs: str = "fil,tl,en"
     use_youtube_captions: bool = True
 
+    # YouTube throttles the timedtext endpoint after a few dozen requests,
+    # which a catalogue run hits easily. Retries are spaced exponentially.
+    caption_max_retries: int = 5
+    caption_retry_base_seconds: float = 5.0
+
     # Whisper silently drops speech that sits under music, so gaps in its
     # output are back-filled from the YouTube caption track when one exists.
     fill_whisper_gaps: bool = True

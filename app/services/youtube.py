@@ -1,6 +1,8 @@
 """yt-dlp wrappers: metadata, caption track discovery, audio download."""
 
+import logging
 import re
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -10,6 +12,8 @@ import yt_dlp
 
 from app.config import settings
 from app.models import TranscriptSource
+
+logger = logging.getLogger(__name__)
 
 # json3 carries per-event timings directly; the others need text parsing.
 FORMAT_PREFERENCE = ("json3", "vtt", "srv3", "srv1")
@@ -201,10 +205,42 @@ def pick_caption_track(info: dict, langs: list[str] | None = None) -> CaptionTra
     return None
 
 
+class CaptionThrottled(RuntimeError):
+    """YouTube rate-limited the caption endpoint, so the track is unread."""
+
+
 def download_caption(track: CaptionTrack) -> str:
-    response = httpx.get(track.url, timeout=60.0, follow_redirects=True)
-    response.raise_for_status()
-    return response.text
+    """Fetch a caption track, backing off when YouTube throttles.
+
+    Walking a whole catalogue trips the timedtext rate limit within a few
+    dozen requests, and the 429 carries no Retry-After, so back off
+    exponentially rather than treating a throttle as a missing track.
+    """
+    for attempt in range(settings.caption_max_retries):
+        response = httpx.get(track.url, timeout=60.0, follow_redirects=True)
+
+        if response.status_code != 429 and response.status_code < 500:
+            response.raise_for_status()
+            return response.text
+
+        if attempt == settings.caption_max_retries - 1:
+            break
+
+        delay = min(settings.caption_retry_base_seconds * 2**attempt, 120.0)
+        logger.warning(
+            "YouTube returned %s for captions (%s); retrying in %.0fs (attempt %d/%d)",
+            response.status_code,
+            track.lang,
+            delay,
+            attempt + 1,
+            settings.caption_max_retries,
+        )
+        time.sleep(delay)
+
+    raise CaptionThrottled(
+        f"YouTube kept returning {response.status_code} for the {track.lang} "
+        f"caption track after {settings.caption_max_retries} attempts."
+    )
 
 
 def download_audio(video_id: str) -> Path:
