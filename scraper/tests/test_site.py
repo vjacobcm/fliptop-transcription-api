@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT))
 from fliptop_scraper.normalize import (  # noqa: E402
     compile_entries,
     keep_group,
+    keep_place,
     person_blurb,
     split_parts,
     split_reppin,
@@ -97,7 +98,15 @@ class NormalizeTests(unittest.TestCase):
         self.assertFalse(keep_group("N/A"))
         self.assertFalse(keep_group("Myself"))
         self.assertFalse(keep_group("Bars"))
+        self.assertFalse(keep_group("RAW"))
+        self.assertFalse(keep_group("Bilog"))
+        self.assertFalse(keep_group("Rizal"))
         self.assertTrue(keep_group("Mulat Krew"))
+        self.assertTrue(keep_group("S.O.S"))
+        self.assertTrue(keep_group("3GS"))
+        self.assertFalse(keep_place("Silang"))
+        self.assertFalse(keep_place("Palo"))
+        self.assertTrue(keep_place("Leyte"))
         self.assertEqual(
             split_reppin("Mulat Krew, Batch 1, S.O.S, Lorem Ipsum"),
             ["Mulat Krew", "S.O.S"],

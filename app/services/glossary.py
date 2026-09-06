@@ -30,9 +30,35 @@ from app.services.titles import parse_matchup
 logger = logging.getLogger(__name__)
 
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
+_ACRONYM_MARK = re.compile(r"[.\-&:/']")
 
 # Two-letter aliases are almost always noise except well-known emcee tags.
 _SHORT_OK = frozenset({"gl"})
+
+# Tokens that collide with Tagalog grammar, battle-rap jargon, or English.
+# Entries can stay in the glossary for blurbs; these spellings never match.
+_NOISE_ALIASES = frozenset(
+    {
+        "ban",
+        "bar",
+        "bars",
+        "bilog",
+        "copyright",
+        "daw",
+        "independent",
+        "palo",
+        "range",
+        "raw",
+        "silang",
+        "speech",
+        "target",
+        "uprising",
+    }
+)
+
+# Single-word crew names shorter than this are dropped unless they look like
+# an acronym (S.O.S, 3GS, TRNGL). Real crews are usually multi-word or coded.
+_MIN_SINGLE_GROUP = 6
 
 # Official-site snapshot written by `python -m fliptop_scraper.site`.
 SITE_SNAPSHOT = Path(__file__).resolve().parents[2] / "scraper" / "site.json"
@@ -141,12 +167,29 @@ def slugify(name: str) -> str:
     return slug or "entry"
 
 
-def _usable_alias(alias: str) -> bool:
+def _looks_like_acronym(alias: str) -> bool:
+    compact = re.sub(r"[^A-Za-z0-9]", "", alias)
+    if not compact:
+        return False
+    if any(ch.isdigit() for ch in compact):
+        return True
+    if _ACRONYM_MARK.search(alias):
+        return True
+    return compact.isupper() and 2 <= len(compact) <= 6
+
+
+def _usable_alias(alias: str, kind: str | None = None) -> bool:
     text = alias.strip()
     if len(text) < 2:
         return False
+    folded = text.lower()
+    if folded in _NOISE_ALIASES:
+        return False
     if len(text) == 2:
-        return text.lower() in _SHORT_OK
+        return folded in _SHORT_OK
+    if kind == EntryKind.GROUP and " " not in text:
+        if not _looks_like_acronym(text) and len(folded) < _MIN_SINGLE_GROUP:
+            return False
     return True
 
 
@@ -228,7 +271,7 @@ def upsert_entry(
 
     labels = {name, *(aliases or [])}
     for label in labels:
-        if not _usable_alias(label):
+        if not _usable_alias(label, kind):
             continue
         norm = label.lower()
         existing = session.exec(select(Alias).where(Alias.norm == norm)).first()
@@ -323,8 +366,12 @@ def _skip_ids_for_battle(session: Session, battle: Battle) -> set[int]:
 
 
 def _alias_catalog(session: Session, skip_ids: set[int]) -> list[tuple[str, int]]:
-    rows = session.exec(select(Alias)).all()
-    return [(row.label, row.entry_id) for row in rows if row.entry_id not in skip_ids]
+    rows = session.exec(select(Alias, Entry).where(Alias.entry_id == Entry.id)).all()
+    return [
+        (alias.label, alias.entry_id)
+        for alias, entry in rows
+        if alias.entry_id not in skip_ids and _usable_alias(alias.label, entry.kind)
+    ]
 
 
 def annotate_battle(session: Session, video_id: str) -> int:

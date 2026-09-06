@@ -265,8 +265,13 @@ def main() -> int:
     ok &= check("no 4s+ holes remain in the patched span", not find_gaps(merged, 50))
 
     print("\nGlossary matching")
-    from app.services.glossary import find_spans, annotate_battle, seed_glossary
-    from app.models import Entry, Mention, MentionStatus
+    from app.services.glossary import (
+        _usable_alias,
+        annotate_battle,
+        find_spans,
+        seed_glossary,
+    )
+    from app.models import Entry, EntryKind, Mention, MentionStatus
     from sqlmodel import select as sql_select
 
     hits = find_spans(
@@ -282,6 +287,27 @@ def main() -> int:
 
     inside = find_spans("ANGLE and Twice", [("GL", 2), ("Ice", 5)])
     ok &= check("short aliases do not match inside tokens", inside == [], str(inside))
+
+    noisy = find_spans(
+        "parehas silang bars raw palo range",
+        [
+            ("silang", 1),
+            ("bars", 2),
+            ("raw", 3),
+            ("palo", 4),
+            ("range", 5),
+            ("GL", 6),
+        ],
+    )
+    ok &= check("common-word aliases do not match", noisy == [], str(noisy))
+    ok &= check("Apolo still matches as a place", _usable_alias("Apolo", EntryKind.PLACE))
+    ok &= check("Baras still matches as a place", _usable_alias("Baras", EntryKind.PLACE))
+    ok &= check("S.O.S still matches as a crew", _usable_alias("S.O.S", EntryKind.GROUP))
+    ok &= check("3GS still matches as a crew", _usable_alias("3GS", EntryKind.GROUP))
+    ok &= check(
+        "short common crew names are dropped",
+        not _usable_alias("Bilog", EntryKind.GROUP),
+    )
 
     with Session(engine) as session:
         seed_glossary(session)

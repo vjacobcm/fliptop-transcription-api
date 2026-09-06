@@ -32,8 +32,16 @@ _SKIP_GROUPS = frozenset(
         "bars",
         "speech",
         "copyright",
+        "raw",
+        "bilog",
+        "uprising",
+        "rizal",
     }
 )
+# Hometown tokens that are also ordinary Tagalog and drown the matcher.
+_SKIP_PLACES = frozenset({"silang", "palo"})
+_ACRONYM_MARK = re.compile(r"[.\-&:/']")
+_MIN_SINGLE_GROUP = 6
 _MEMBER_CAP = 8
 
 
@@ -46,6 +54,17 @@ def _norm(text: str) -> str:
     return tidy(text).lower()
 
 
+def _looks_like_acronym(token: str) -> bool:
+    compact = re.sub(r"[^A-Za-z0-9]", "", token)
+    if not compact:
+        return False
+    if any(ch.isdigit() for ch in compact):
+        return True
+    if _ACRONYM_MARK.search(token):
+        return True
+    return compact.isupper() and 2 <= len(compact) <= 6
+
+
 def keep_group(token: str) -> bool:
     folded = _norm(token)
     if len(folded) < 2:
@@ -54,7 +73,16 @@ def keep_group(token: str) -> bool:
         return False
     if _BATCH_RE.search(folded):
         return False
+    if " " not in folded and not _looks_like_acronym(token) and len(folded) < _MIN_SINGLE_GROUP:
+        return False
     return True
+
+
+def keep_place(token: str) -> bool:
+    folded = _norm(token)
+    if len(folded) < 2:
+        return False
+    return folded not in _SKIP_PLACES
 
 
 def split_parts(raw: str) -> list[str]:
@@ -224,6 +252,8 @@ def compile_entries(emcees: list[dict]) -> tuple[list[dict], list[dict]]:
             bucket = groups.setdefault(key, {"name": crew, "members": []})
             bucket["members"].append(emcee["name"])
         for place in emcee["hometown_parts"]:
+            if not keep_place(place):
+                continue
             key = _norm(place)
             bucket = hometowns.setdefault(key, {"name": place, "members": []})
             bucket["members"].append(emcee["name"])
