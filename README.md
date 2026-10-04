@@ -1,20 +1,21 @@
 # FlipTop Transcription API
 
-Builds a corpus of timestamped FlipTop battle transcripts from YouTube.
+A catalogue of timestamped FlipTop battle transcripts for a Chrome companion
+that paints subtitles and named references on the YouTube player.
 
-Ingest is **tiered** — it takes the cheapest source that works:
+Transcripts come from [Battle BARS PH](https://battlebarsph.com/transcripts/ai),
+which already has timed lines (and often speaker / round). The API does not
+transcribe a battle every time you watch it. Whisper and YouTube captions are
+still there for videos the site does not have.
 
-1. **YouTube manual captions** (human-made, rare, best quality)
-2. **YouTube auto-captions** (Filipino ASR — instant and free)
-3. **Whisper** on downloaded audio (local `faster-whisper` or the Groq API)
-
-Every battle records which source produced it, so lower-quality transcripts can
-be re-ingested with Whisper later without changing anything else.
+The glossary marks known people, crews, places, and events in stored lines.
+The two emcees on the card are skipped. An optional Groq LLM pass can nominate
+names the dictionary missed.
 
 ## Requirements
 
 - Python 3.11+
-- FFmpeg (`brew install ffmpeg`)
+- FFmpeg only if you fall back to Whisper (`brew install ffmpeg`)
 
 ## Setup
 
@@ -28,6 +29,34 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
+Add a free `GROQ_API_KEY` from <https://console.groq.com/keys> if you want the
+LLM name pass. It is not required to scrape, ingest, or run the companion.
+
+## Catalogue
+
+```bash
+cd scraper
+python -m fliptop_scraper.transcripts          # snapshots in scraper/transcripts/
+cd ..
+python scripts/ingest_scraped.py --overwrite   # Battle + Segment rows
+python scripts/annotate.py --all               # glossary mentions
+```
+
+The scrape is resumable (already-written ids are skipped). Ingest replaces a
+battle already stored from captions or Whisper when `--overwrite` is set.
+Details and the official-site glossary crawl live in [scraper/README.md](scraper/README.md).
+
+The site asks for permission before reuse. `robots.txt` is open; email the
+address in their footer before anything public-facing.
+
+Optional LLM pass (free Groq chat model, `GROQ_NER_MODEL` in `.env`):
+
+```bash
+python scripts/ner.py --purge            # drop an old spaCy / junk layer
+python scripts/ner.py YHUaTOiGXBI
+python scripts/ner.py --all
+```
+
 ## Run the API
 
 ```bash
@@ -38,8 +67,8 @@ uvicorn app.main:app --reload
 Interactive docs: <http://127.0.0.1:8000/docs>
 
 A Postman collection lives in `postman/FlipTop-API.postman_collection.json`.
-Import that file in Postman (Import → file). Companion requests are the watch
-overlay; Ops is catalogue ingest and mention review.
+Companion requests are the watch overlay; Ops is catalogue ingest and mention
+review.
 
 ## Chrome companion
 
@@ -56,96 +85,21 @@ the page stays untouched.
 Turn off YouTube's own captions if they sit on top of the companion lines.
 The popup talks to `http://127.0.0.1:8000` by default.
 
-## Transcribing in batches
+## Gaps the site does not cover
 
-Groq's free tier covers 8 hours of audio a day with no card, which is enough to
-work through the catalog a few battles at a time. Point `.env` at it:
+A few catalogue videos have no BattleBars page. Those still go through the old
+tier: YouTube captions, then Whisper (`local` or `groq`).
 
 ```
 TRANSCRIPTION_BACKEND=groq
 GROQ_API_KEY=gsk_...
 ```
 
-Confirm the key works before spending any quota:
-
 ```bash
 python scripts/check_groq.py
+python scripts/backfill.py --catalogue --limit 5 --dry-run
+python scripts/backfill.py --catalogue --only-no-captions
 ```
 
-Then plan a run:
-
-```bash
-python scripts/backfill.py --upgrade --limit 2 --dry-run   # re-do auto-caption battles
-python scripts/backfill.py --upgrade --limit 2
-python scripts/backfill.py --playlist "<channel or playlist URL>" --limit 5
-```
-
-The runner adds up durations first and stops before it would exceed
-`--budget-seconds` (the free-tier day by default), skips battles already
-transcribed, and paces requests to stay under the rate limit. Uploads are split
-into chunks under the size cap, and a chunk shorter than 30 seconds is folded
-into the one before it so Whisper is never fed mostly-silence.
-
-Each battle gets a prompt seeded with the emcee names parsed from its title, so
-proper nouns come back spelled correctly.
-
-## Building the catalogue
-
-`--catalogue` takes its candidates from `scraper/battles.json` instead of a
-playlist, and `--captions-only` restricts the run to YouTube's own caption
-tracks. That combination downloads no audio and spends no Groq quota, so it is
-the cheapest way to grow the catalogue:
-
-```bash
-python scripts/backfill.py --catalogue --captions-only --dry-run
-python scripts/backfill.py --catalogue --captions-only --delay 8
-```
-
-Battles already stored as `ready` are skipped, so the command is safe to re-run
-and will pick up wherever the last one left off.
-
-Two things go wrong on a large run, and they need different responses:
-
-- **`429 Too Many Requests`.** YouTube rate-limits the caption endpoint after a
-  few dozen downloads and blocks the IP for hours. Neither a browser
-  User-Agent nor yt-dlp's own downloader gets around it. Caption downloads
-  retry with exponential backoff, and the run aborts once `--max-throttles`
-  battles fail in a row rather than grinding through the rest. The captions are
-  fine — re-run later with a larger `--delay`.
-- **No caption track at all.** Some battles have never had captions generated,
-  so no amount of waiting helps and they need Whisper. Transcribe just those,
-  leaving the rate-limited ones for a later captions pass:
-
-  ```bash
-  python scripts/backfill.py --catalogue --only-no-captions
-  ```
-
-Audio downloads and Groq are unaffected by a caption block, so the Whisper path
-keeps working while one is in effect.
-
-After a backfill, refresh the combined transcript dump so it matches the
-database:
-
-```bash
-python scripts/export_all.py           # transcripts/all_battles.txt
-python scripts/export_all.py --format timed
-```
-
-It writes an index followed by every ready battle, and reports how many
-catalogue battles are still untranscribed. The file is derived from the
-database and is gitignored; re-run the script rather than editing it.
-
-### Disk use
-
-Whisper runs cache downloaded audio in `data/audio/`, at roughly 25 MB per
-battle. Groq needs that split into upload chunks, which costs about as much
-again, so the chunks are deleted once every chunk of a battle has come back —
-a failed run keeps them so a retry does not re-encode. Set
-`KEEP_GROQ_CHUNKS=true` to hold on to them when debugging a bad transcript.
-
-Source mp3s are kept, since they make a re-transcribe free. They are safe to
-delete whenever the transcript is stored; the next run just downloads again:
-
-```bash
-rm -f data/audio/*.mp3
-```
+`scripts/export_all.py` writes a gitignored dump of every ready battle to
+`transcripts/all_battles.txt`. Re-run it after ingest; do not edit the file.
