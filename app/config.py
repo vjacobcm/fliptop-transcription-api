@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     groq_api_base: str = "https://api.groq.com/openai/v1"
     groq_model: str = "whisper-large-v3"
+    # Free-tier chat model for NER. 8B is the safe daily-quota pick;
+    # llama-3.3-70b-versatile is still free and sharper if you raise the cap.
+    groq_ner_model: str = "qwen/qwen3.8-27b"
     groq_chunk_seconds: int = 600
 
     # Free-tier ceilings (console.groq.com/docs/rate-limits). Uploads are

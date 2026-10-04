@@ -19,8 +19,8 @@ _NOISE_RE = re.compile(r"[\(\[][^\)\]]*[\)\]]\s*$")
 # The event follows "@", or a trailing "- Isabuhay 2018".
 _EVENT_RE = re.compile(r"\s+@\s*(?P<event>.+)$")
 
-_VS_RE = re.compile(r"\s+(?:vs\.?|versus)\s+", re.I)
-_TEAM_RE = re.compile(r"\s+(?:&|\+|and)\s+", re.I)
+_VS_RE = re.compile(r"\s+(?:vs\.?|v\.s\.?|v/s|versus)\s+", re.I)
+_TEAM_RE = re.compile(r"(?:\s+(?:&|\+|and)\s+|/)", re.I)
 
 
 @dataclass
@@ -34,7 +34,7 @@ class Matchup:
 
     @property
     def is_complete(self) -> bool:
-        return len(self.sides) == 2 and all(self.sides)
+        return len(self.sides) >= 2 and all(self.sides)
 
     def describe(self) -> str:
         return " vs ".join(" & ".join(side) for side in self.sides)
@@ -49,6 +49,8 @@ def parse_matchup(title: str) -> Matchup:
     if not title:
         return Matchup()
 
+    # Promos glue a coming-soon line after '|'; only the card itself is the battle.
+    title = title.split("|", 1)[0]
     body = _NOISE_RE.sub("", title).strip()
     body = _PREFIX_RE.sub("", body)
 
@@ -59,7 +61,7 @@ def parse_matchup(title: str) -> Matchup:
         body = body[: match.start()]
 
     parts = _VS_RE.split(_clean(body))
-    if len(parts) != 2:
+    if len(parts) < 2:
         return Matchup(event=event)
 
     sides = []

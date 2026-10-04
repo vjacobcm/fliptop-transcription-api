@@ -10,7 +10,7 @@ from fliptop_scraper.emcees import (
     is_battle_title,
     normalize,
 )
-from fliptop_scraper.titles import parse_matchup
+from app.services.titles import parse_matchup
 
 _ALIASES = alias_index()
 

@@ -23,7 +23,11 @@ def _add_missing_columns() -> None:
     """
     inspector = inspect(engine)
 
-    for table, column, ddl in (("segment", "source", "VARCHAR"),):
+    for table, column, ddl in (
+        ("segment", "source", "VARCHAR"),
+        ("segment", "speaker", "VARCHAR"),
+        ("segment", "round", "VARCHAR"),
+    ):
         if not inspector.has_table(table):
             continue
         existing = {col["name"] for col in inspector.get_columns(table)}

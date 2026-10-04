@@ -1,0 +1,5 @@
+1:I[86637,["/_next/static/chunks/aaa.js"],"LoadingBoundaryProvider"]
+3:"$Sreact.fragment"
+:HL["/_next/static/chunks/bbb.css","style"]
+0:{"f":[[["",{"children":["battles",{"children":[["videoId","dQw4w9WgXcQ","d",[]],{}]}]}]]}
+39:["$","$L3a",null,{"battleTitle":"Test Battle - Alpha vs Bravo","lines":[{"id":1,"videoId":"dQw4w9WgXcQ","startTime":"00:00:00,000","endTime":"00:00:18,460","text":"🎵 Music 🎵","lineNumber":1,"round":null,"speaker":null},{"id":2,"videoId":"dQw4w9WgXcQ","startTime":"00:00:30,000","endTime":"00:00:44,120","text":"an opening line","lineNumber":2,"round":null,"speaker":null},{"id":3,"videoId":"dQw4w9WgXcQ","startTime":"00:00:45,000","endTime":"00:00:49,000","text":"Outro","lineNumber":3,"round":null,"speaker":null}],"tab":"transcript"}]

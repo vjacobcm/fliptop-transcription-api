@@ -372,6 +372,28 @@ def main() -> int:
     )
     ok &= check("annotate wrote those mentions", written == len(rows), f"{written}/{len(rows)}")
 
+    from app.services.ner import model_usable, overlaps, parse_entities, trim_entity
+
+    ok &= check("model keeps title-case names", model_usable("Cerberus", "person"))
+    ok &= check("model drops lowercase filler", not model_usable("hearty", "person"))
+    ok &= check("model drops Tagalog function words", not model_usable("Kaya", "place"))
+    parsed = parse_entities(
+        '{"entities":[{"name":"Abra","kind":"person"},{"name":"kaya","kind":"place"}]}'
+    )
+    ok &= check(
+        "LLM parser keeps Abra and drops kaya",
+        [row["name"] for row in parsed] == ["Abra"],
+        str(parsed),
+    )
+    peeled = trim_entity("Shoutout kay Abra sa Apolo.", 0, 17)
+    ok &= check(
+        "model peels shoutout/kay and keeps Abra",
+        peeled is not None and peeled[0] == "Abra",
+        str(peeled),
+    )
+    ok &= check("model spans do not overlap glossary hits", overlaps(4, 8, [(0, 4)]) is False)
+    ok &= check("model spans detect overlap", overlaps(2, 6, [(0, 4)]))
+
     client = TestClient(app)
     marked = client.get(f"/battles/{VIDEO_ID}/mentions")
     ok &= check("GET mentions", marked.status_code == 200 and marked.json()["count"] >= 3)

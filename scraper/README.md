@@ -17,11 +17,11 @@ A second command snapshots emcee profiles from the [official site](https://www.f
 
 ## Setup
 
-Uses the same venv as the transcription API (`yt-dlp` is already in the root `requirements.txt`). From the repo root:
+Uses the same venv and `requirements.txt` as the transcription API. From the repo root:
 
 ```bash
 source .venv/bin/activate
-pip install -r scraper/requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Run
@@ -31,12 +31,13 @@ cd scraper
 python -m fliptop_scraper
 ```
 
-Writes `battles.json` and a readable `battles.txt` (titles + links, grouped by emcee). Useful flags:
+Writes `battles.json`. Useful flags:
 
 ```bash
-python -m fliptop_scraper --out battles.json   # also writes battles.txt
+python -m fliptop_scraper --out battles.json
 python -m fliptop_scraper --stdout          # JSON on stdout, progress on stderr
 python -m fliptop_scraper --limit 200       # first N channel videos only
+python -m fliptop_scraper --txt battles.txt # optional readable list
 ```
 
 The channel dump can take a few minutes. Use `--limit` to smoke-test matching.
@@ -63,6 +64,61 @@ The crawl is polite (~0.75s between requests; the site's robots.txt is open). Af
 python scripts/annotate.py --all
 ```
 
+## Battle transcripts
+
+A third command pulls ready-made, timestamped transcripts from
+[Battle BARS PH](https://battlebarsph.com/transcripts/ai), which saves
+transcribing the catalogue ourselves — roughly 630 hours of audio.
+
+```bash
+cd scraper
+python -m fliptop_scraper.transcripts
+```
+
+Battle pages there are `/battles/<youtube id>`, the same key the API stores
+battles under, so nothing has to be matched on title. Candidates come from the
+site's `sitemap.xml` (one request) rather than the 136 paginated listing pages.
+
+```bash
+python -m fliptop_scraper.transcripts --catalogue     # only battles.json battles
+python -m fliptop_scraper.transcripts --limit 5 --dry-run
+python -m fliptop_scraper.transcripts --delay 2.0
+python -m fliptop_scraper.transcripts dQw4w9WgXcQ     # specific video ids
+```
+
+Each battle is written to `transcripts/<video_id>.json` as it arrives, and a
+re-run skips files already on disk, so an interrupted crawl resumes where it
+stopped. Pass `--overwrite` to re-fetch.
+
+The pages are Next.js, and the transcript is a JSON array inside the React
+Server Components payload. The scraper asks for that payload directly with an
+`RSC` header, which is about 40% of the rendered page's bytes; `--full-pages`
+falls back to the HTML if that ever stops working.
+
+Lines carry `start`/`end` seconds parsed from the site's SRT-style timestamps,
+and about 40% of battles also label `speaker` and `round`. Whisper's stock
+phrases over the intro beat ("Outro", "Thank you for watching") are dropped,
+as are consecutive duplicate lines. Note symbols are **not** treated as filler
+on their own, since the site also uses them to wrap lines an emcee sang.
+
+Parser checks (no network):
+
+```bash
+cd scraper
+PYTHONPATH=. python -m unittest tests.test_transcripts
+```
+
+Load the snapshots into the API so the companion can use them:
+
+```bash
+python scripts/ingest_scraped.py --overwrite --dry-run
+python scripts/ingest_scraped.py --overwrite
+```
+
+The site asks that you request permission before reusing its data; its
+`robots.txt` is open and it publishes a sitemap, but email the address in the
+site footer before putting any of this anywhere public.
+
 Parser and normalize checks (no network):
 
 ```bash
@@ -71,8 +127,6 @@ PYTHONPATH=. python -m unittest tests.test_site
 ```
 
 ## Output
-
-`battles.txt` is the readable list: each emcee, then title + URL.
 
 `battles.json` has one entry per battle (a GL vs Loonie card is not duplicated) plus a `by_emcee` map of URL lists:
 

@@ -19,6 +19,7 @@ class TranscriptSource:
     YOUTUBE_AUTO = "youtube_auto"
     WHISPER_LOCAL = "whisper_local"
     WHISPER_GROQ = "whisper_groq"
+    BATTLEBARS = "battlebars"
 
 
 class Battle(SQLModel, table=True):
@@ -48,6 +49,8 @@ class Segment(SQLModel, table=True):
     # Whisper drops speech under music, so a battle can mix sources: most
     # segments from Whisper, the gaps back-filled from YouTube captions.
     source: str | None = None
+    speaker: str | None = None
+    round: str | None = None
 
 
 class EntryKind:
@@ -67,6 +70,7 @@ class MentionStatus:
 
 class MentionDetector:
     GLOSSARY = "glossary"
+    MODEL = "model"
     HUMAN = "human"
 
 

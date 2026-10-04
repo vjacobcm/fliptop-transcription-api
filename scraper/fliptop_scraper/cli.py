@@ -10,7 +10,7 @@ from pathlib import Path
 
 from fliptop_scraper.emcees import EMCEES
 from fliptop_scraper.match import matched_emcees
-from fliptop_scraper.titles import parse_matchup
+from app.services.titles import parse_matchup
 from fliptop_scraper.youtube import (
     DEFAULT_CHANNEL,
     SHORTS_MAX_SECONDS,
@@ -103,7 +103,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--txt",
         default=None,
-        help="Plain-text file to write (default: same name as --out with a .txt suffix)",
+        help="Optional plain-text sibling to write (titles + URLs grouped by emcee)",
     )
     parser.add_argument(
         "--stdout",
@@ -150,7 +150,6 @@ def main(argv: list[str] | None = None) -> int:
     payload = build_payload(args.channel, videos, skipped)
     payload["videos_scanned"] = len(listed)
     json_text = json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
-    txt_text = format_text(payload)
 
     if args.stdout:
         sys.stdout.write(json_text)
@@ -159,9 +158,10 @@ def main(argv: list[str] | None = None) -> int:
         json_path.write_text(json_text, encoding="utf-8")
         print(f"Wrote {json_path.resolve()}", file=sys.stderr)
 
-        txt_path = Path(args.txt) if args.txt else json_path.with_suffix(".txt")
-        txt_path.write_text(txt_text, encoding="utf-8")
-        print(f"Wrote {txt_path.resolve()}", file=sys.stderr)
+        if args.txt:
+            txt_path = Path(args.txt)
+            txt_path.write_text(format_text(payload), encoding="utf-8")
+            print(f"Wrote {txt_path.resolve()}", file=sys.stderr)
 
     print(
         f"{payload['battle_count']} battles  |  "

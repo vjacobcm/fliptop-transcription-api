@@ -1,6 +1,8 @@
 """Tiered ingest: YouTube captions when available, Whisper when not."""
 
+import json
 import logging
+from pathlib import Path
 
 from sqlmodel import Session, delete, select
 
@@ -19,6 +21,12 @@ logger = logging.getLogger(__name__)
 
 class IngestError(RuntimeError):
     pass
+
+
+def _as_round(value) -> str | None:
+    if value is None or value == "":
+        return None
+    return str(value)
 
 
 def _upsert_battle(session: Session, video_id: str, info: dict) -> Battle:
@@ -53,6 +61,8 @@ def _replace_segments(
                 end=segment["end"],
                 text=segment["text"],
                 source=segment.get("source") or source,
+                speaker=segment.get("speaker"),
+                round=_as_round(segment.get("round")),
             )
         )
     session.commit()
@@ -188,6 +198,74 @@ def ingest_battle(
 def get_segments(session: Session, video_id: str) -> list[Segment]:
     statement = select(Segment).where(Segment.video_id == video_id).order_by(Segment.idx)
     return list(session.exec(statement))
+
+
+def ingest_snapshot(
+    path: Path,
+    *,
+    force: bool = False,
+    annotate: bool = True,
+) -> Battle:
+    """Load one Battle BARS PH snapshot into Battle + Segment rows."""
+    try:
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise IngestError(f"Could not read {path}: {exc}") from exc
+
+    video_id = (payload.get("video_id") or Path(path).stem or "").strip()
+    if not video_id:
+        raise IngestError(f"{path} has no video_id")
+
+    lines = [row for row in (payload.get("lines") or []) if isinstance(row, dict)]
+    if not lines:
+        raise IngestError(f"{video_id} has no transcript lines")
+
+    with Session(engine) as session:
+        existing = session.get(Battle, video_id)
+        if existing and existing.status == BattleStatus.READY and not force:
+            logger.info("Battle %s already ingested; skipping", video_id)
+            return existing
+
+        battle = _upsert_battle(
+            session,
+            video_id,
+            {
+                "title": payload.get("title") or "",
+                "channel": "FlipTop Battles",
+                "duration": payload.get("duration"),
+            },
+        )
+        battle.url = youtube.watch_url(video_id)
+
+        segments = [
+            {
+                "start": float(row.get("start") or 0),
+                "end": float(row.get("end") or 0),
+                "text": (row.get("text") or "").strip(),
+                "source": TranscriptSource.BATTLEBARS,
+                "speaker": row.get("speaker") or None,
+                "round": row.get("round"),
+            }
+            for row in lines
+            if (row.get("text") or "").strip()
+        ]
+        if not segments:
+            raise IngestError(f"{video_id} has no usable lines")
+
+        _replace_segments(session, video_id, segments, TranscriptSource.BATTLEBARS)
+        if annotate:
+            annotate_battle(session, video_id)
+
+        battle.status = BattleStatus.READY
+        battle.source = TranscriptSource.BATTLEBARS
+        battle.language = "tl"
+        battle.segment_count = len(segments)
+        battle.error = None
+        battle.updated_at = utcnow()
+        session.add(battle)
+        session.commit()
+        session.refresh(battle)
+        return battle
 
 
 def patch_stored_gaps(video_id: str) -> Battle:
